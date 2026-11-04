@@ -65,6 +65,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 - An event when a price drops below the lowest seen so far, for a destination or a week
 - More than one passenger
+- A dashboard card, shipped with the integration: the weeks and their trips, a filter by departure airport and the booking links, with nothing else to install or set up
 
 ## License
 
