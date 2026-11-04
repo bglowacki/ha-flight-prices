@@ -124,7 +124,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
         error: str | None = None
         try:
             for week in weeks:
-                for origin in self.params.origins:
+                for origin in self.params.origins_for(SOURCE_RYANAIR):
                     if searched or error:
                         await asyncio.sleep(RYANAIR_DELAY)
                     try:
@@ -176,7 +176,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
         try:
             for week in weeks:
                 for destination in params.destinations:
-                    for origin in params.origins:
+                    for origin in params.origins_for(SOURCE_GOOGLE):
                         try:
                             out = await search(
                                 week.outbound, origin, destination, params.outbound_hours, params.direct_only

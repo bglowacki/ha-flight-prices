@@ -49,6 +49,9 @@ async def test_ryanair_anywhere(hass: HomeAssistant, aioclient_mock: Any) -> Non
     assert week.attributes["unit_of_measurement"] == "EUR"
     assert week.attributes["outbound_date"] == "2026-11-06"
     assert week.attributes["return_date"] == "2026-11-08"
+    assert week.attributes["origins"] == ["MXP", "BGY"]
+    assert week.attributes["outbound_hours"] == [19, 24]
+    assert week.attributes["return_hours"] == [14, 24]
     # Both airports answered with the same fixture: one trip per destination is kept.
     assert week.attributes["destinations_found"] == 3
 
@@ -257,3 +260,18 @@ async def test_google_takes_names_from_ryanair(hass: HomeAssistant, aioclient_mo
         ("WWA", "BGY", "Varsavia", "PL", "google"),
     ]
     assert hass.states.get("sensor.weekend_pmo").attributes["city"] == "Palermo"
+
+
+async def test_google_from_some_airports(hass: HomeAssistant, aioclient_mock: Any) -> None:
+    aioclient_mock.get(RYANAIR_URL, json=ryanair_payload())
+    calls, search = _fake_google()
+    with (
+        patch("custom_components.flight_prices.sources.google.GoogleSource.search", side_effect=search),
+        patch("custom_components.flight_prices.sources.google.GoogleSource.link", return_value="https://g"),
+    ):
+        await _setup(hass, sources=["ryanair", "google"], destinations=["PMO"], google_origins=["MXP"])
+        await hass.async_block_till_done(wait_background_tasks=True)
+    # Ryanair from both airports, Google from Malpensa only: two weeks, outbound and return.
+    assert aioclient_mock.call_count == 4
+    assert {call[1] for call in calls} == {"MXP", "PMO"}
+    assert len(calls) == 4

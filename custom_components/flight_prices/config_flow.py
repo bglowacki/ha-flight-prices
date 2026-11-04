@@ -28,6 +28,7 @@ from .const import (
     CONF_DIRECT_ONLY,
     CONF_EXCLUDE_COUNTRIES,
     CONF_GOOGLE_INTERVAL,
+    CONF_GOOGLE_ORIGINS,
     CONF_ORIGINS,
     CONF_OUTBOUND_DAY,
     CONF_OUTBOUND_FROM,
@@ -84,6 +85,7 @@ SEARCH_SCHEMA = vol.Schema(
                 options=list(SOURCES), multiple=True, translation_key="sources", mode=SelectSelectorMode.LIST
             )
         ),
+        vol.Optional(CONF_GOOGLE_ORIGINS): CODES,
         vol.Required(CONF_WEEKS, default=DEFAULT_WEEKS): _number(1, MAX_WEEKS),
         vol.Required(CONF_OUTBOUND_DAY, default=str(DEFAULT_OUTBOUND_DAY)): DAY,
         vol.Required(CONF_OUTBOUND_FROM, default=DEFAULT_OUTBOUND_FROM): _number(0, 23, "h"),
@@ -116,6 +118,7 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
     origins = _codes(user_input.get(CONF_ORIGINS))
     destinations = _codes(user_input.get(CONF_DESTINATIONS))
     countries = _codes(user_input.get(CONF_EXCLUDE_COUNTRIES))
+    google_origins = _codes(user_input.get(CONF_GOOGLE_ORIGINS))
     sources = [source for source in SOURCES if source in user_input.get(CONF_SOURCES, ())]
     if not origins:
         errors[CONF_ORIGINS] = "no_origin"
@@ -123,6 +126,8 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
         errors[CONF_ORIGINS] = "invalid_code"
     if not all(AIRPORT_RE.match(code) for code in destinations):
         errors[CONF_DESTINATIONS] = "invalid_code"
+    if not all(AIRPORT_RE.match(code) for code in google_origins):
+        errors[CONF_GOOGLE_ORIGINS] = "invalid_code"
     if not all(COUNTRY_RE.match(code) for code in countries):
         errors[CONF_EXCLUDE_COUNTRIES] = "invalid_country"
     if not sources:
@@ -135,6 +140,7 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
         CONF_DESTINATIONS: destinations,
         CONF_EXCLUDE_COUNTRIES: countries,
         CONF_SOURCES: sources,
+        CONF_GOOGLE_ORIGINS: google_origins,
         CONF_WEEKS: int(user_input[CONF_WEEKS]),
         CONF_OUTBOUND_DAY: int(user_input[CONF_OUTBOUND_DAY]),
         CONF_OUTBOUND_FROM: int(user_input[CONF_OUTBOUND_FROM]),

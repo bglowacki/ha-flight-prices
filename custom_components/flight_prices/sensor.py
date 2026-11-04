@@ -15,7 +15,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, SOURCE_GOOGLE, TRIPS_IN_ATTRIBUTES
 from .coordinator import FlightPricesConfigEntry, FlightPricesCoordinator
-from .models import Trip, WeekResult
+from .models import SearchParams, Trip, WeekResult
 
 # Every entity reads the coordinator's data, nothing is fetched per entity.
 PARALLEL_UPDATES = 0
@@ -70,6 +70,15 @@ def _week_dates(result: WeekResult) -> dict[str, Any]:
     return {"outbound_date": result.week.outbound.isoformat(), "return_date": result.week.inbound.isoformat()}
 
 
+def _search(params: SearchParams) -> dict[str, Any]:
+    """What was searched, for dashboards: hours run from..to, 24 being midnight."""
+    return {
+        "origins": list(params.origins),
+        "outbound_hours": [params.outbound_hours.start, params.outbound_hours.end],
+        "return_hours": [params.return_hours.start, params.return_hours.end],
+    }
+
+
 class WeekSensor(PriceSensor):
     """The cheapest trips of the n-th week from now."""
 
@@ -97,6 +106,7 @@ class WeekSensor(PriceSensor):
             return None
         return {
             **_week_dates(result),
+            **_search(self.coordinator.params),
             "destinations_found": result.found,
             "trips": [trip.as_attributes() for trip in result.trips[:TRIPS_IN_ATTRIBUTES]],
         }

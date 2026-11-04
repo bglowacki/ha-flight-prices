@@ -1,6 +1,6 @@
 # Flight Prices for Home Assistant
 
-Cheapest return flights for the coming weeks, as Home Assistant sensors: for example out on Friday evening after 19:00 from Milan Malpensa or Bergamo, back on Sunday afternoon, to anywhere or to a list of destinations.
+Cheapest return flights for the coming weeks, as Home Assistant sensors. Each search has its own departure airports, destinations (or anywhere), outbound and return weekday and departure hours: for example out on Friday evening after 19:00 from Milan Malpensa or Bergamo and back on Sunday afternoon, or out on Thursday morning and back on Monday. Add as many searches as you like; all of it can be changed later from **Configure**.
 
 Prices come from two sources, both read without an API key:
 
@@ -15,7 +15,7 @@ One device per search, with these sensors (prices for one adult, return trip):
 
 | Sensor | State | Attributes |
 |---|---|---|
-| Week 1 … Week N | Cheapest trip of that week | `outbound_date`, `return_date`, `destinations_found`, `trips`: up to 30 trips, cheapest first, one per destination and departure airport, with city, country, country code, departure airport, price, airline, source, outbound and return flights (times, flight numbers, stops) and a booking link |
+| Week 1 … Week N | Cheapest trip of that week | `outbound_date`, `return_date`, the search (`origins`, `outbound_hours` and `return_hours` as `[from, to]`), `destinations_found`, `trips`: up to 30 trips, cheapest first, one per destination and departure airport, with city, country, country code, departure airport, price, airline, source, outbound and return flights (times, flight numbers, stops) and a booking link |
 | Cheapest trip | Cheapest trip of all the weeks | `outbound_date`, `return_date`, `city`, `trip` |
 | One per destination, with a list | Cheapest trip to it over the weeks | `city`, `outbound_date`, `weeks` (price per week), `trip` |
 | Ryanair search, Google Flights search (diagnostic) | Last successful search | `last_attempt`, `error`, `trips`, `running` |
@@ -27,7 +27,7 @@ Each week keeps one trip per destination and departure airport, the cheapest acr
 | Source | Requests per search | Default interval |
 |---|---|---|
 | Ryanair | airports × weeks (2 × 8 = 16), one second apart | 3 hours |
-| Google Flights | weeks × destinations × airports × 2 (8 × 5 × 2 × 2 = 160), 20 to 30 seconds apart, about an hour in all | 24 hours |
+| Google Flights | weeks × destinations × Google departure airports × 2 (8 × 5 × 1 × 2 = 80), 20 to 30 seconds apart, about half an hour in all | 24 hours |
 
 The Google search runs in the background. Its round stops at the first block (consent page, captcha, HTTP 429) or after 5 errors in a row, and is tried again at the next interval. A return is not searched when the outbound found nothing. Results are saved, so a restart of Home Assistant or a change of options shows them at once without searching again, unless the search itself changed.
 
@@ -37,17 +37,18 @@ With HACS: add this repository as a custom repository (category Integration), in
 
 Then add the integration in **Settings → Devices & services**. The options can be changed later from the integration's **Configure** button.
 
-| Option | Default |
-|---|---|
-| Departure airports | IATA codes, such as `MXP`, `BGY` |
-| Destinations | IATA codes of airports or cities (`LON` is every London airport); empty to search anywhere (Ryanair only) |
-| Leave out countries | None; `IT` leaves out flights within Italy. Applied to what was found, so changing it needs no new search |
-| Sources | Ryanair |
-| Weeks | 8 |
-| Outbound day and departure hours | Friday, 19 to 24 |
-| Return day and departure hours | Sunday, 14 to 24 |
-| Direct flights only (Google Flights) | Yes |
-| Ryanair / Google Flights search every | 3 / 24 hours |
+| Option | What it is | Default |
+|---|---|---|
+| Departure airports | IATA codes; every trip comes back to the airport it left from | none, required |
+| Destinations | IATA codes of airports or cities (`LON` is every London airport) | empty: anywhere (Ryanair only) |
+| Leave out countries | ISO codes, such as `IT` for flights within Italy; applied to what was found, so changing it needs no new search | none |
+| Sources | Ryanair, Google Flights or both | Ryanair |
+| Google Flights departure airports | Only these of the departure airports are searched on Google Flights, for example the ones Ryanair does not cover well | empty: all of them |
+| Weeks | How many weeks ahead, from the coming one (1 to 12) | 8 |
+| Outbound day and departure hours | Any weekday; hours from 0 to 24, 24 being midnight | Friday, 19 to 24 |
+| Return day and departure hours | Any weekday; a return day before the outbound day means the week after (Saturday to Monday) | Sunday, 14 to 24 |
+| Direct flights only | Google Flights only: Ryanair always flies direct | yes |
+| Ryanair / Google Flights search every | Hours between two searches | 3 / 24 |
 
 ## Development
 

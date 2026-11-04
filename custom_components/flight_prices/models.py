@@ -13,6 +13,7 @@ from .const import (
     CONF_DESTINATIONS,
     CONF_DIRECT_ONLY,
     CONF_EXCLUDE_COUNTRIES,
+    CONF_GOOGLE_ORIGINS,
     CONF_ORIGINS,
     CONF_OUTBOUND_DAY,
     CONF_OUTBOUND_FROM,
@@ -201,6 +202,7 @@ class SearchParams:
     return_hours: Hours
     direct_only: bool
     exclude_countries: tuple[str, ...] = ()
+    google_origins: tuple[str, ...] = ()
 
     @classmethod
     def from_options(cls, options: Mapping[str, Any]) -> SearchParams:
@@ -221,18 +223,25 @@ class SearchParams:
             ),
             direct_only=bool(options.get(CONF_DIRECT_ONLY, DEFAULT_DIRECT_ONLY)),
             exclude_countries=tuple(options.get(CONF_EXCLUDE_COUNTRIES, ())),
+            google_origins=tuple(options.get(CONF_GOOGLE_ORIGINS, ())),
         )
 
     @property
     def anywhere(self) -> bool:
         return not self.destinations
 
+    def origins_for(self, source: str) -> tuple[str, ...]:
+        """The departure airports a source searches from."""
+        if source != SOURCE_RYANAIR and self.google_origins:
+            return self.google_origins
+        return self.origins
+
     def fingerprint(self, source: str) -> str:
         """Changes when a source would search for something else."""
         what: dict[str, Any] = {
             # Raised when saved trips lack something new: 2 added the country code.
             "version": 2,
-            "origins": sorted(self.origins),
+            "origins": sorted(self.origins_for(source)),
             "destinations": sorted(self.destinations),
             "days": [self.outbound_day, self.return_day],
             "hours": [

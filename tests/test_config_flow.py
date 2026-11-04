@@ -53,6 +53,7 @@ async def test_create_anywhere(hass: HomeAssistant) -> None:
         ({"destinations": ["LIS", "12"]}, {"destinations": "invalid_code"}),
         ({"sources": []}, {"sources": "no_source"}),
         ({"exclude_countries": ["ITA"]}, {"exclude_countries": "invalid_country"}),
+        ({"google_origins": ["MALPENSA"]}, {"google_origins": "invalid_code"}),
         ({"sources": ["google"]}, {"destinations": "google_needs_destinations"}),
         ({"outbound_from": 20, "outbound_to": 19}, {"outbound_to": "invalid_hours"}),
         ({"return_from": 14, "return_to": 14}, {"return_to": "invalid_hours"}),

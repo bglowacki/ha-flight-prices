@@ -83,6 +83,16 @@ def test_fingerprint_changes_with_the_search() -> None:
     assert params.fingerprint("google") != other.fingerprint("google")
 
 
+def test_google_origins() -> None:
+    params = SearchParams.from_options({**OPTIONS, "google_origins": ["MXP"]})
+    assert params.origins_for("ryanair") == ("MXP", "BGY")
+    assert params.origins_for("google") == ("MXP",)
+    assert SearchParams.from_options(OPTIONS).origins_for("google") == ("MXP", "BGY")
+    # Only Google searches again when its airports change.
+    assert params.fingerprint("ryanair") == SearchParams.from_options(OPTIONS).fingerprint("ryanair")
+    assert params.fingerprint("google") != SearchParams.from_options(OPTIONS).fingerprint("google")
+
+
 def test_one_trip_per_destination_and_airport() -> None:
     trips = [_trip("BCN", 90), _trip("BCN", 95), _trip("BCN", 70, "google", "MXP"), _trip("LIS", 80)]
     assert [(trip.destination, trip.origin, trip.price) for trip in cheapest_per_route(trips)] == [
