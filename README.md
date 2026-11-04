@@ -67,6 +67,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 - More than one passenger
 - A dashboard card, shipped with the integration: the weeks and their trips, a filter by departure airport and the booking links, with nothing else to install or set up
 
+## Credits
+
+Google Flights searches are built with [fast-flights](https://github.com/AWeirdDev/flights).
+
+Built with the help of AI coding agents (Claude Code), under the author's direction.
+
 ## License
 
 MIT. Ryanair and Google Flights are trademarks of their owners; this project is not affiliated with them.
