@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "New flight search",
+        "description": "Return trips every week: out on one day, back on another, within the hours you choose. Prices are for one adult.",
+        "data": {
+          "name": "Name",
+          "origins": "Departure airports",
+          "destinations": "Destinations",
+          "sources": "Sources",
+          "weeks": "Weeks",
+          "outbound_day": "Outbound day",
+          "outbound_from": "Outbound departure from",
+          "outbound_to": "Outbound departure until",
+          "return_day": "Return day",
+          "return_from": "Return departure from",
+          "return_to": "Return departure until",
+          "direct_only": "Direct flights only"
+        },
+        "data_description": {
+          "name": "For example Weekend from Milan.",
+          "origins": "IATA codes, for example MXP and BGY. Each trip comes back to the airport it left from.",
+          "destinations": "IATA codes of airports or cities (LON is every London airport). Leave empty to search anywhere: Ryanair only.",
+          "sources": "Ryanair finds the cheapest fare to every destination with a few requests. Google Flights covers every airline, but only for a list of destinations and with many requests spread out over about an hour.",
+          "weeks": "How many weeks ahead, starting from the coming one.",
+          "outbound_to": "24 is midnight.",
+          "return_to": "24 is midnight.",
+          "direct_only": "Google Flights only: Ryanair always flies direct."
+        }
+      }
+    },
+    "error": {
+      "no_origin": "Enter at least one departure airport.",
+      "invalid_code": "Use three-letter IATA codes, such as MXP.",
+      "no_source": "Choose at least one source.",
+      "google_needs_destinations": "Google Flights needs a list of destinations: to search anywhere, add Ryanair.",
+      "invalid_hours": "The end must come after the start."
+    },
+    "abort": {
+      "already_configured": "This search already exists."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Change the search",
+        "data": {
+          "origins": "Departure airports",
+          "destinations": "Destinations",
+          "sources": "Sources",
+          "weeks": "Weeks",
+          "outbound_day": "Outbound day",
+          "outbound_from": "Outbound departure from",
+          "outbound_to": "Outbound departure until",
+          "return_day": "Return day",
+          "return_from": "Return departure from",
+          "return_to": "Return departure until",
+          "direct_only": "Direct flights only",
+          "ryanair_interval": "Ryanair search every",
+          "google_interval": "Google Flights search every"
+        },
+        "data_description": {
+          "origins": "IATA codes, for example MXP and BGY. Each trip comes back to the airport it left from.",
+          "destinations": "IATA codes of airports or cities (LON is every London airport). Leave empty to search anywhere: Ryanair only.",
+          "sources": "Ryanair finds the cheapest fare to every destination with a few requests. Google Flights covers every airline, but only for a list of destinations and with many requests spread out over about an hour.",
+          "weeks": "How many weeks ahead, starting from the coming one.",
+          "outbound_to": "24 is midnight.",
+          "return_to": "24 is midnight.",
+          "direct_only": "Google Flights only: Ryanair always flies direct.",
+          "ryanair_interval": "Hours between two searches.",
+          "google_interval": "Hours between two searches. One search reads every week, destination and airport, outbound and return."
+        }
+      }
+    },
+    "error": {
+      "no_origin": "Enter at least one departure airport.",
+      "invalid_code": "Use three-letter IATA codes, such as MXP.",
+      "no_source": "Choose at least one source.",
+      "google_needs_destinations": "Google Flights needs a list of destinations: to search anywhere, add Ryanair.",
+      "invalid_hours": "The end must come after the start."
+    }
+  },
+  "selector": {
+    "sources": {
+      "options": {
+        "ryanair": "Ryanair",
+        "google": "Google Flights"
+      }
+    },
+    "weekday": {
+      "options": {
+        "0": "Monday",
+        "1": "Tuesday",
+        "2": "Wednesday",
+        "3": "Thursday",
+        "4": "Friday",
+        "5": "Saturday",
+        "6": "Sunday"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "week": {
+        "name": "Week {number}"
+      },
+      "cheapest": {
+        "name": "Cheapest trip"
+      },
+      "destination": {
+        "name": "{destination}"
+      },
+      "ryanair_search": {
+        "name": "Ryanair search"
+      },
+      "google_search": {
+        "name": "Google Flights search"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "No source answered: {error}"
+    }
+  }
+}

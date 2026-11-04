@@ -1,0 +1,11 @@
+{
+  "entity": {
+    "sensor": {
+      "week": { "default": "mdi:airplane-takeoff" },
+      "cheapest": { "default": "mdi:airplane" },
+      "destination": { "default": "mdi:map-marker-radius" },
+      "ryanair_search": { "default": "mdi:cloud-search" },
+      "google_search": { "default": "mdi:cloud-search" }
+    }
+  }
+}

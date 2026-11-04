@@ -1,0 +1,127 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nuova ricerca di voli",
+        "description": "Viaggi di andata e ritorno ogni settimana: andata in un giorno, ritorno in un altro, nelle fasce orarie che scegli. I prezzi sono per un adulto.",
+        "data": {
+          "name": "Nome",
+          "origins": "Aeroporti di partenza",
+          "destinations": "Destinazioni",
+          "sources": "Fonti",
+          "weeks": "Settimane",
+          "outbound_day": "Giorno di andata",
+          "outbound_from": "Partenza dell'andata dalle",
+          "outbound_to": "Partenza dell'andata entro le",
+          "return_day": "Giorno di ritorno",
+          "return_from": "Partenza del ritorno dalle",
+          "return_to": "Partenza del ritorno entro le",
+          "direct_only": "Solo voli diretti"
+        },
+        "data_description": {
+          "name": "Ad esempio Weekend da Milano.",
+          "origins": "Codici IATA, ad esempio MXP e BGY. Ogni viaggio torna all'aeroporto da cui è partito.",
+          "destinations": "Codici IATA di aeroporti o città (LON vale per tutti gli aeroporti di Londra). Lascia vuoto per cercare ovunque: solo con Ryanair.",
+          "sources": "Ryanair trova la tariffa più bassa verso ogni destinazione con poche richieste. Google Flights copre tutte le compagnie, ma solo per un elenco di destinazioni e con molte richieste distribuite in circa un'ora.",
+          "weeks": "Quante settimane avanti, a partire dalla prossima.",
+          "outbound_to": "24 è mezzanotte.",
+          "return_to": "24 è mezzanotte.",
+          "direct_only": "Solo per Google Flights: Ryanair vola sempre diretto."
+        }
+      }
+    },
+    "error": {
+      "no_origin": "Inserisci almeno un aeroporto di partenza.",
+      "invalid_code": "Usa codici IATA di tre lettere, come MXP.",
+      "no_source": "Scegli almeno una fonte.",
+      "google_needs_destinations": "Google Flights ha bisogno di un elenco di destinazioni: per cercare ovunque aggiungi Ryanair.",
+      "invalid_hours": "La fine deve venire dopo l'inizio."
+    },
+    "abort": {
+      "already_configured": "Questa ricerca esiste già."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Modifica la ricerca",
+        "data": {
+          "origins": "Aeroporti di partenza",
+          "destinations": "Destinazioni",
+          "sources": "Fonti",
+          "weeks": "Settimane",
+          "outbound_day": "Giorno di andata",
+          "outbound_from": "Partenza dell'andata dalle",
+          "outbound_to": "Partenza dell'andata entro le",
+          "return_day": "Giorno di ritorno",
+          "return_from": "Partenza del ritorno dalle",
+          "return_to": "Partenza del ritorno entro le",
+          "direct_only": "Solo voli diretti",
+          "ryanair_interval": "Ricerca Ryanair ogni",
+          "google_interval": "Ricerca Google Flights ogni"
+        },
+        "data_description": {
+          "origins": "Codici IATA, ad esempio MXP e BGY. Ogni viaggio torna all'aeroporto da cui è partito.",
+          "destinations": "Codici IATA di aeroporti o città (LON vale per tutti gli aeroporti di Londra). Lascia vuoto per cercare ovunque: solo con Ryanair.",
+          "sources": "Ryanair trova la tariffa più bassa verso ogni destinazione con poche richieste. Google Flights copre tutte le compagnie, ma solo per un elenco di destinazioni e con molte richieste distribuite in circa un'ora.",
+          "weeks": "Quante settimane avanti, a partire dalla prossima.",
+          "outbound_to": "24 è mezzanotte.",
+          "return_to": "24 è mezzanotte.",
+          "direct_only": "Solo per Google Flights: Ryanair vola sempre diretto.",
+          "ryanair_interval": "Ore tra due ricerche.",
+          "google_interval": "Ore tra due ricerche. Una ricerca legge ogni settimana, destinazione e aeroporto, andata e ritorno."
+        }
+      }
+    },
+    "error": {
+      "no_origin": "Inserisci almeno un aeroporto di partenza.",
+      "invalid_code": "Usa codici IATA di tre lettere, come MXP.",
+      "no_source": "Scegli almeno una fonte.",
+      "google_needs_destinations": "Google Flights ha bisogno di un elenco di destinazioni: per cercare ovunque aggiungi Ryanair.",
+      "invalid_hours": "La fine deve venire dopo l'inizio."
+    }
+  },
+  "selector": {
+    "sources": {
+      "options": {
+        "ryanair": "Ryanair",
+        "google": "Google Flights"
+      }
+    },
+    "weekday": {
+      "options": {
+        "0": "Lunedì",
+        "1": "Martedì",
+        "2": "Mercoledì",
+        "3": "Giovedì",
+        "4": "Venerdì",
+        "5": "Sabato",
+        "6": "Domenica"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "week": {
+        "name": "Settimana {number}"
+      },
+      "cheapest": {
+        "name": "Viaggio più economico"
+      },
+      "destination": {
+        "name": "{destination}"
+      },
+      "ryanair_search": {
+        "name": "Ricerca Ryanair"
+      },
+      "google_search": {
+        "name": "Ricerca Google Flights"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Nessuna fonte ha risposto: {error}"
+    }
+  }
+}

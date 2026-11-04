@@ -1,0 +1,263 @@
+"""Coordinator for the Flight Prices integration."""
+
+from __future__ import annotations
+
+import asyncio
+from dataclasses import replace
+from datetime import datetime, timedelta
+import logging
+import random
+from typing import Any
+
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.storage import Store
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
+
+from .const import (
+    CONF_GOOGLE_INTERVAL,
+    CONF_RYANAIR_INTERVAL,
+    DEFAULT_GOOGLE_HOURS,
+    DEFAULT_RYANAIR_HOURS,
+    DOMAIN,
+    GOOGLE_DELAY,
+    RYANAIR_DELAY,
+    SOURCE_GOOGLE,
+    SOURCE_RYANAIR,
+    STORAGE_VERSION,
+    TICK,
+    TRIPS_PER_WEEK,
+)
+from .models import FlightData, SearchParams, SourceState, Trip, Week, WeekResult, cheapest_per_destination
+from .sources import SourceBlocked, SourceError
+from .sources.google import GoogleSource
+from .sources.ryanair import RyanairSource
+
+_LOGGER = logging.getLogger(__name__)
+
+type FlightPricesConfigEntry = ConfigEntry[FlightPricesCoordinator]
+
+# A failed Ryanair search is tried again sooner than the next regular one.
+RYANAIR_RETRY = timedelta(minutes=30)
+# Google errors that are not a block, in a row, before the round stops.
+GOOGLE_MAX_ERRORS = 5
+
+
+class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
+    """Searches the sources when they are due and keeps what they found."""
+
+    config_entry: FlightPricesConfigEntry
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: FlightPricesConfigEntry,
+        ryanair: RyanairSource | None,
+        google: GoogleSource | None,
+    ) -> None:
+        super().__init__(hass, _LOGGER, config_entry=entry, name=DOMAIN, update_interval=TICK)
+        self.params = SearchParams.from_options(entry.options)
+        self.ryanair = ryanair if SOURCE_RYANAIR in self.params.sources else None
+        self.google = google if SOURCE_GOOGLE in self.params.sources and self.params.destinations else None
+        self.intervals = {
+            SOURCE_RYANAIR: timedelta(hours=entry.options.get(CONF_RYANAIR_INTERVAL, DEFAULT_RYANAIR_HOURS)),
+            SOURCE_GOOGLE: timedelta(hours=entry.options.get(CONF_GOOGLE_INTERVAL, DEFAULT_GOOGLE_HOURS)),
+        }
+        self.states: dict[str, SourceState] = {}
+        # City and country of a destination, learned from Ryanair, for the trips found on Google.
+        self.names: dict[str, list[str | None]] = {}
+        self.google_running = False
+        self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}")
+
+    @property
+    def active_sources(self) -> list[str]:
+        return [name for name, source in ((SOURCE_RYANAIR, self.ryanair), (SOURCE_GOOGLE, self.google)) if source]
+
+    async def async_load(self) -> None:
+        """What the sources found before a restart, unless the search has changed since."""
+        stored = await self._store.async_load() or {}
+        self.names = dict(stored.get("names", {}))
+        for source in self.active_sources:
+            fingerprint = self.params.fingerprint(source)
+            saved = stored.get("sources", {}).get(source)
+            state = SourceState.from_dict(saved) if saved else None
+            self.states[source] = state if state and state.fingerprint == fingerprint else SourceState(fingerprint)
+
+    async def _async_update_data(self) -> FlightData:
+        now = dt_util.utcnow()
+        weeks = self.params.upcoming_weeks(dt_util.now().date())
+        if self.ryanair and self._due(SOURCE_RYANAIR, now):
+            await self._async_search_ryanair(weeks, now)
+        if self.google and not self.google_running and self._due(SOURCE_GOOGLE, now):
+            self.google_running = True
+            self.config_entry.async_create_background_task(
+                self.hass, self._async_search_google(weeks), f"{DOMAIN}_google_{self.config_entry.entry_id}"
+            )
+        data = self._assemble(weeks)
+        if not any(result.trips for result in data.weeks) and all(
+            state.error and not state.last_success for state in self.states.values()
+        ):
+            # Nothing found ever and every source failed: let Home Assistant retry the setup.
+            errors = "; ".join(f"{name}: {state.error}" for name, state in self.states.items())
+            raise UpdateFailed(
+                translation_domain=DOMAIN, translation_key="update_failed", translation_placeholders={"error": errors}
+            )
+        return data
+
+    def _due(self, source: str, now: datetime) -> bool:
+        state = self.states[source]
+        if state.last_attempt is None:
+            return True
+        since = now - state.last_attempt
+        if since >= self.intervals[source]:
+            return True
+        # A Google block waits for the next regular round; a Ryanair error is retried sooner.
+        return source == SOURCE_RYANAIR and state.error is not None and since >= RYANAIR_RETRY
+
+    async def _async_search_ryanair(self, weeks: list[Week], now: datetime) -> None:
+        assert self.ryanair is not None
+        state = self.states[SOURCE_RYANAIR]
+        state.last_attempt = now
+        found: list[Trip] = []
+        searched: set[tuple[str, str]] = set()
+        error: str | None = None
+        try:
+            for week in weeks:
+                for origin in self.params.origins:
+                    if searched or error:
+                        await asyncio.sleep(RYANAIR_DELAY)
+                    try:
+                        trips = await self.ryanair.search(
+                            origin,
+                            week.outbound,
+                            week.inbound,
+                            self.params.outbound_hours,
+                            self.params.return_hours,
+                            self.params.destinations,
+                        )
+                    except SourceBlocked:
+                        raise
+                    except SourceError as err:
+                        error = str(err)
+                        continue
+                    searched.add((week.outbound.isoformat(), origin))
+                    found.extend(trips)
+        except SourceBlocked as err:
+            error = str(err)
+        if searched:
+            # Searches that failed keep what the previous round found for them.
+            kept = [trip for trip in state.trips if (trip.outbound_date.isoformat(), trip.origin) not in searched]
+            state.trips = kept + found
+            state.last_success = now
+            for trip in found:
+                self.names[trip.destination] = [trip.city, trip.country]
+        state.error = error
+        if error:
+            _LOGGER.warning("Ryanair search %s: %s", "incomplete" if searched else "failed", error)
+        await self._store.async_save(self._to_store())
+
+    async def _async_search_google(self, weeks: list[Week]) -> None:
+        assert self.google is not None
+        google = self.google
+        state = self.states[SOURCE_GOOGLE]
+        state.last_attempt = dt_util.utcnow()
+        params = self.params
+        requests = errors = 0
+        error: str | None = None
+
+        async def search(*args: Any) -> list[Any]:
+            nonlocal requests
+            if requests:
+                await asyncio.sleep(random.uniform(*GOOGLE_DELAY))
+            requests += 1
+            return await self.hass.async_add_executor_job(google.search, *args)
+
+        try:
+            for week in weeks:
+                for destination in params.destinations:
+                    for origin in params.origins:
+                        try:
+                            out = await search(
+                                week.outbound, origin, destination, params.outbound_hours, params.direct_only
+                            )
+                            back = (
+                                await search(week.inbound, destination, origin, params.return_hours, params.direct_only)
+                                if out
+                                else []
+                            )
+                        except SourceBlocked:
+                            raise
+                        except SourceError as err:
+                            errors += 1
+                            error = str(err)
+                            if errors >= GOOGLE_MAX_ERRORS:
+                                raise SourceBlocked(f"{errors} errors in a row, the last: {err}") from err
+                            continue
+                        errors = 0
+                        # This search replaces what the previous round found for it.
+                        state.trips = [
+                            trip
+                            for trip in state.trips
+                            if (trip.outbound_date, trip.origin, trip.destination)
+                            != (week.outbound, origin, destination)
+                        ]
+                        if out and back:
+                            state.trips.append(self._google_trip(destination, out[0], back[0], week))
+                self._store.async_delay_save(self._to_store, 10)
+                self.async_set_updated_data(self._assemble(params.upcoming_weeks(dt_util.now().date())))
+        except SourceBlocked as err:
+            error = str(err)
+            _LOGGER.warning("Google Flights search stopped after %s requests: %s", requests, err)
+        else:
+            state.last_success = dt_util.utcnow()
+            _LOGGER.debug("Google Flights search finished: %s requests", requests)
+        finally:
+            # Also when Home Assistant stops in the middle: what was found so far is saved.
+            state.error = error
+            self.google_running = False
+            google.close()
+            self._store.async_delay_save(self._to_store, 0)
+        self.async_set_updated_data(self._assemble(params.upcoming_weeks(dt_util.now().date())))
+
+    def _google_trip(self, destination: str, out: Any, back: Any, week: Week) -> Trip:
+        assert self.google is not None
+        city, country = self.names.get(destination, [None, None])
+        return Trip(
+            source=SOURCE_GOOGLE,
+            destination=destination,
+            city=city,
+            country=country,
+            price=round(out.price + back.price, 2),
+            currency=self.hass.config.currency,
+            outbound=out.leg,
+            inbound=back.leg,
+            link=self.google.link(out.leg.origin, destination, week.outbound, week.inbound),
+        )
+
+    def _assemble(self, weeks: list[Week]) -> FlightData:
+        results = []
+        for week in weeks:
+            trips = [
+                self._named(trip)
+                for state in self.states.values()
+                for trip in state.trips
+                if trip.outbound_date == week.outbound and trip.inbound.departure.date() == week.inbound
+            ]
+            results.append(WeekResult(week, tuple(cheapest_per_destination(trips)[:TRIPS_PER_WEEK])))
+        return FlightData(weeks=tuple(results), sources=dict(self.states))
+
+    def _named(self, trip: Trip) -> Trip:
+        if trip.city or trip.destination not in self.names:
+            return trip
+        city, country = self.names[trip.destination]
+        return replace(trip, city=city, country=country)
+
+    def _to_store(self) -> dict[str, Any]:
+        today = dt_util.now().date()
+        for state in self.states.values():
+            state.trips = [trip for trip in state.trips if trip.outbound_date >= today]
+        return {
+            "sources": {name: state.as_dict() for name, state in self.states.items()},
+            "names": self.names,
+        }

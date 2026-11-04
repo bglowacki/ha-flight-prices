@@ -1,0 +1,267 @@
+{
+ "arrivalAirportCategories": null,
+ "fares": [
+  {
+   "outbound": {
+    "departureAirport": {
+     "countryName": "Italia",
+     "iataCode": "BGY",
+     "name": "Milano Bergamo",
+     "seoName": "milano-bergamo",
+     "city": {
+      "code": "BERGAMO",
+      "countryCode": "it",
+      "name": "Bergamo"
+     }
+    },
+    "arrivalAirport": {
+     "countryName": "Polonia",
+     "iataCode": "WMI",
+     "name": "Varsavia (Modlin)",
+     "seoName": "warsaw-modlin",
+     "city": {
+      "code": "WARSAW",
+      "countryCode": "pl",
+      "macCode": "WWA",
+      "name": "Varsavia"
+     }
+    },
+    "departureDate": "2026-11-06T19:00:00",
+    "arrivalDate": "2026-11-06T20:55:00",
+    "price": {
+     "value": 57.99,
+     "valueMainUnit": "57",
+     "valueFractionalUnit": "99",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "flightKey": "FR~3341~ ~~BGY~11/06/2026 19:00~WMI~11/06/2026 20:55~~",
+    "flightNumber": "FR3341",
+    "previousPrice": null
+   },
+   "inbound": {
+    "departureAirport": {
+     "countryName": "Polonia",
+     "iataCode": "WMI",
+     "name": "Varsavia (Modlin)",
+     "seoName": "warsaw-modlin",
+     "city": {
+      "code": "WARSAW",
+      "countryCode": "pl",
+      "macCode": "WWA",
+      "name": "Varsavia"
+     }
+    },
+    "arrivalAirport": {
+     "countryName": "Italia",
+     "iataCode": "BGY",
+     "name": "Milano Bergamo",
+     "seoName": "milano-bergamo",
+     "city": {
+      "code": "BERGAMO",
+      "countryCode": "it",
+      "name": "Bergamo"
+     }
+    },
+    "departureDate": "2026-11-08T14:10:00",
+    "arrivalDate": "2026-11-08T16:15:00",
+    "price": {
+     "value": 73.99,
+     "valueMainUnit": "73",
+     "valueFractionalUnit": "99",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "flightKey": "FR~1904~ ~~WMI~11/08/2026 14:10~BGY~11/08/2026 16:15~~",
+    "flightNumber": "FR1904",
+    "previousPrice": null
+   },
+   "summary": {
+    "price": {
+     "value": 131.98,
+     "valueMainUnit": "131",
+     "valueFractionalUnit": "98",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "previousPrice": null,
+    "newRoute": false,
+    "tripDurationDays": 2
+   }
+  },
+  {
+   "outbound": {
+    "departureAirport": {
+     "countryName": "Italia",
+     "iataCode": "BGY",
+     "name": "Milano Bergamo",
+     "seoName": "milano-bergamo",
+     "city": {
+      "code": "BERGAMO",
+      "countryCode": "it",
+      "name": "Bergamo"
+     }
+    },
+    "arrivalAirport": {
+     "countryName": "Italia",
+     "iataCode": "PMO",
+     "name": "Palermo",
+     "seoName": "palermo",
+     "city": {
+      "code": "PALERMO",
+      "countryCode": "it",
+      "name": "Palermo"
+     }
+    },
+    "departureDate": "2026-11-06T20:35:00",
+    "arrivalDate": "2026-11-06T22:15:00",
+    "price": {
+     "value": 106.99,
+     "valueMainUnit": "106",
+     "valueFractionalUnit": "99",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "flightKey": "FR~6149~ ~~BGY~11/06/2026 20:35~PMO~11/06/2026 22:15~~",
+    "flightNumber": "FR6149",
+    "previousPrice": null
+   },
+   "inbound": {
+    "departureAirport": {
+     "countryName": "Italia",
+     "iataCode": "PMO",
+     "name": "Palermo",
+     "seoName": "palermo",
+     "city": {
+      "code": "PALERMO",
+      "countryCode": "it",
+      "name": "Palermo"
+     }
+    },
+    "arrivalAirport": {
+     "countryName": "Italia",
+     "iataCode": "BGY",
+     "name": "Milano Bergamo",
+     "seoName": "milano-bergamo",
+     "city": {
+      "code": "BERGAMO",
+      "countryCode": "it",
+      "name": "Bergamo"
+     }
+    },
+    "departureDate": "2026-11-08T23:35:00",
+    "arrivalDate": "2026-11-09T01:15:00",
+    "price": {
+     "value": 70.61,
+     "valueMainUnit": "70",
+     "valueFractionalUnit": "61",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "flightKey": "FR~1600~ ~~PMO~11/08/2026 23:35~BGY~11/09/2026 01:15~~",
+    "flightNumber": "FR1600",
+    "previousPrice": null
+   },
+   "summary": {
+    "price": {
+     "value": 177.6,
+     "valueMainUnit": "177",
+     "valueFractionalUnit": "60",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "previousPrice": null,
+    "newRoute": false,
+    "tripDurationDays": 3
+   }
+  },
+  {
+   "outbound": {
+    "departureAirport": {
+     "countryName": "Italia",
+     "iataCode": "BGY",
+     "name": "Milano Bergamo",
+     "seoName": "milano-bergamo",
+     "city": {
+      "code": "BERGAMO",
+      "countryCode": "it",
+      "name": "Bergamo"
+     }
+    },
+    "arrivalAirport": {
+     "countryName": "Regno Unito",
+     "iataCode": "EDI",
+     "name": "Edimburgo",
+     "seoName": "edinburgh",
+     "city": {
+      "code": "EDINBURGH",
+      "countryCode": "gb",
+      "name": "Edimburgo"
+     }
+    },
+    "departureDate": "2026-11-06T23:00:00",
+    "arrivalDate": "2026-11-07T00:35:00",
+    "price": {
+     "value": 138.99,
+     "valueMainUnit": "138",
+     "valueFractionalUnit": "99",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "flightKey": "RK~3657~ ~~BGY~11/06/2026 23:00~EDI~11/07/2026 00:35~~",
+    "flightNumber": "RK3657",
+    "previousPrice": null
+   },
+   "inbound": {
+    "departureAirport": {
+     "countryName": "Regno Unito",
+     "iataCode": "EDI",
+     "name": "Edimburgo",
+     "seoName": "edinburgh",
+     "city": {
+      "code": "EDINBURGH",
+      "countryCode": "gb",
+      "name": "Edimburgo"
+     }
+    },
+    "arrivalAirport": {
+     "countryName": "Italia",
+     "iataCode": "BGY",
+     "name": "Milano Bergamo",
+     "seoName": "milano-bergamo",
+     "city": {
+      "code": "BERGAMO",
+      "countryCode": "it",
+      "name": "Bergamo"
+     }
+    },
+    "departureDate": "2026-11-08T21:40:00",
+    "arrivalDate": "2026-11-09T01:10:00",
+    "price": {
+     "value": 45.89,
+     "valueMainUnit": "45",
+     "valueFractionalUnit": "89",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "flightKey": "FR~3658~ ~~EDI~11/08/2026 21:40~BGY~11/09/2026 01:10~~",
+    "flightNumber": "FR3658",
+    "previousPrice": null
+   },
+   "summary": {
+    "price": {
+     "value": 184.88,
+     "valueMainUnit": "184",
+     "valueFractionalUnit": "88",
+     "currencyCode": "EUR",
+     "currencySymbol": "€"
+    },
+    "previousPrice": null,
+    "newRoute": false,
+    "tripDurationDays": 3
+   }
+  }
+ ],
+ "nextPage": null,
+ "size": 3
+}
