@@ -1,0 +1,56 @@
+name: Bug report
+description: Something does not work as it should
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If a source stopped answering, look first at the **Ryanair search** and **Google Flights search** sensors: their `error` attribute often says why (for example a block by Google).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead. For a wrong price, the route, the dates and the price shown on the airline's or Google's site.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce it
+      description: The steps that lead to the problem, if you know them.
+  - type: input
+    id: version
+    attributes:
+      label: Version of the integration
+      description: In Settings → Devices & services → Flight Prices, or in HACS.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Version of Home Assistant
+      description: In Settings → About.
+      placeholder: "2026.11.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installed with
+      options:
+        - HACS
+        - By hand
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: In Settings → Devices & services → Flight Prices → ⋮ → Download diagnostics. It holds the options of the search and the state of each source, nothing personal. Drag the file here.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log
+      description: The lines of the Home Assistant log about `custom_components.flight_prices`.
+      render: text

@@ -11,6 +11,10 @@ Neither Ryanair nor Google Flights offers this as an API, and both can block cli
 - Results are saved, so a restart or a change of options must not search again unless what a source searches has changed.
 - A new source needs to work without an account or an API key, and to say in the README what it reads and how often.
 
+## Reporting a security problem
+
+Do not open a public issue: see [SECURITY.md](SECURITY.md).
+
 ## Development
 
 You need Python 3.14, the version the tests run on.

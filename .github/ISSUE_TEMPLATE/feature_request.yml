@@ -1,0 +1,20 @@
+name: Feature request
+description: An option, a source or anything else the integration could do
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The sources are not official APIs, so ideas that need many more requests are hard to accept: see "Be gentle with the sources" in [CONTRIBUTING.md](https://github.com/flaviorighi/ha-flight-prices/blob/main/CONTRIBUTING.md).
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you would like
+      description: What the integration should do, and what you would use it for.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: For a new source
+      description: The airline or site, and whether it can be read without an account or an API key.
