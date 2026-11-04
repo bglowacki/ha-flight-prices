@@ -13,6 +13,8 @@ CONF_DESTINATIONS: Final = "destinations"
 CONF_SOURCES: Final = "sources"
 # Departure airports searched on Google Flights; empty means all of them.
 CONF_GOOGLE_ORIGINS: Final = "google_origins"
+# Destinations searched on Google Flights; empty means the destinations above.
+CONF_GOOGLE_DESTINATIONS: Final = "google_destinations"
 CONF_WEEKS: Final = "weeks"
 CONF_OUTBOUND_DAY: Final = "outbound_day"
 CONF_OUTBOUND_FROM: Final = "outbound_from"

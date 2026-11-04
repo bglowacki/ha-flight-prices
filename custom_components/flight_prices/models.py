@@ -13,6 +13,7 @@ from .const import (
     CONF_DESTINATIONS,
     CONF_DIRECT_ONLY,
     CONF_EXCLUDE_COUNTRIES,
+    CONF_GOOGLE_DESTINATIONS,
     CONF_GOOGLE_ORIGINS,
     CONF_ORIGINS,
     CONF_OUTBOUND_DAY,
@@ -203,6 +204,7 @@ class SearchParams:
     direct_only: bool
     exclude_countries: tuple[str, ...] = ()
     google_origins: tuple[str, ...] = ()
+    google_destinations: tuple[str, ...] = ()
 
     @classmethod
     def from_options(cls, options: Mapping[str, Any]) -> SearchParams:
@@ -224,6 +226,7 @@ class SearchParams:
             direct_only=bool(options.get(CONF_DIRECT_ONLY, DEFAULT_DIRECT_ONLY)),
             exclude_countries=tuple(options.get(CONF_EXCLUDE_COUNTRIES, ())),
             google_origins=tuple(options.get(CONF_GOOGLE_ORIGINS, ())),
+            google_destinations=tuple(options.get(CONF_GOOGLE_DESTINATIONS, ())),
         )
 
     @property
@@ -236,13 +239,24 @@ class SearchParams:
             return self.google_origins
         return self.origins
 
+    def destinations_for(self, source: str) -> tuple[str, ...]:
+        """The destinations a source searches; empty means anywhere (Ryanair only)."""
+        if source != SOURCE_RYANAIR and self.google_destinations:
+            return self.google_destinations
+        return self.destinations
+
+    @property
+    def all_destinations(self) -> tuple[str, ...]:
+        """Every destination of a list, of any source."""
+        return tuple(dict.fromkeys((*self.destinations, *self.google_destinations)))
+
     def fingerprint(self, source: str) -> str:
         """Changes when a source would search for something else."""
         what: dict[str, Any] = {
             # Raised when saved trips lack something new: 2 added the country code.
             "version": 2,
             "origins": sorted(self.origins_for(source)),
-            "destinations": sorted(self.destinations),
+            "destinations": sorted(self.destinations_for(source)),
             "days": [self.outbound_day, self.return_day],
             "hours": [
                 self.outbound_hours.start,

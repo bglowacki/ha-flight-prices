@@ -27,6 +27,7 @@ from .const import (
     CONF_DESTINATIONS,
     CONF_DIRECT_ONLY,
     CONF_EXCLUDE_COUNTRIES,
+    CONF_GOOGLE_DESTINATIONS,
     CONF_GOOGLE_INTERVAL,
     CONF_GOOGLE_ORIGINS,
     CONF_ORIGINS,
@@ -86,6 +87,7 @@ SEARCH_SCHEMA = vol.Schema(
             )
         ),
         vol.Optional(CONF_GOOGLE_ORIGINS): CODES,
+        vol.Optional(CONF_GOOGLE_DESTINATIONS): CODES,
         vol.Required(CONF_WEEKS, default=DEFAULT_WEEKS): _number(1, MAX_WEEKS),
         vol.Required(CONF_OUTBOUND_DAY, default=str(DEFAULT_OUTBOUND_DAY)): DAY,
         vol.Required(CONF_OUTBOUND_FROM, default=DEFAULT_OUTBOUND_FROM): _number(0, 23, "h"),
@@ -119,6 +121,7 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
     destinations = _codes(user_input.get(CONF_DESTINATIONS))
     countries = _codes(user_input.get(CONF_EXCLUDE_COUNTRIES))
     google_origins = _codes(user_input.get(CONF_GOOGLE_ORIGINS))
+    google_destinations = _codes(user_input.get(CONF_GOOGLE_DESTINATIONS))
     sources = [source for source in SOURCES if source in user_input.get(CONF_SOURCES, ())]
     if not origins:
         errors[CONF_ORIGINS] = "no_origin"
@@ -128,19 +131,22 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
         errors[CONF_DESTINATIONS] = "invalid_code"
     if not all(AIRPORT_RE.match(code) for code in google_origins):
         errors[CONF_GOOGLE_ORIGINS] = "invalid_code"
+    if not all(AIRPORT_RE.match(code) for code in google_destinations):
+        errors[CONF_GOOGLE_DESTINATIONS] = "invalid_code"
     if not all(COUNTRY_RE.match(code) for code in countries):
         errors[CONF_EXCLUDE_COUNTRIES] = "invalid_country"
     if not sources:
         errors[CONF_SOURCES] = "no_source"
-    elif sources == [SOURCE_GOOGLE] and not destinations:
+    elif SOURCE_GOOGLE in sources and not (google_destinations or destinations):
         # Google Flights is searched route by route: it cannot look everywhere.
-        errors[CONF_DESTINATIONS] = "google_needs_destinations"
+        errors[CONF_GOOGLE_DESTINATIONS] = "google_needs_destinations"
     options: dict[str, Any] = {
         CONF_ORIGINS: origins,
         CONF_DESTINATIONS: destinations,
         CONF_EXCLUDE_COUNTRIES: countries,
         CONF_SOURCES: sources,
         CONF_GOOGLE_ORIGINS: google_origins,
+        CONF_GOOGLE_DESTINATIONS: google_destinations,
         CONF_WEEKS: int(user_input[CONF_WEEKS]),
         CONF_OUTBOUND_DAY: int(user_input[CONF_OUTBOUND_DAY]),
         CONF_OUTBOUND_FROM: int(user_input[CONF_OUTBOUND_FROM]),

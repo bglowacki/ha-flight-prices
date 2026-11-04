@@ -31,7 +31,7 @@ from .const import (
 )
 from .models import FlightData, SearchParams, SourceState, Trip, Week, WeekResult, cheapest_per_route
 from .sources import SourceBlocked, SourceError
-from .sources.google import GoogleSource
+from .sources.google import GoogleSource, city_from_airport
 from .sources.ryanair import RyanairSource
 
 _LOGGER = logging.getLogger(__name__)
@@ -59,7 +59,9 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
         super().__init__(hass, _LOGGER, config_entry=entry, name=DOMAIN, update_interval=TICK)
         self.params = SearchParams.from_options(entry.options)
         self.ryanair = ryanair if SOURCE_RYANAIR in self.params.sources else None
-        self.google = google if SOURCE_GOOGLE in self.params.sources and self.params.destinations else None
+        self.google = (
+            google if SOURCE_GOOGLE in self.params.sources and self.params.destinations_for(SOURCE_GOOGLE) else None
+        )
         self.intervals = {
             SOURCE_RYANAIR: timedelta(hours=entry.options.get(CONF_RYANAIR_INTERVAL, DEFAULT_RYANAIR_HOURS)),
             SOURCE_GOOGLE: timedelta(hours=entry.options.get(CONF_GOOGLE_INTERVAL, DEFAULT_GOOGLE_HOURS)),
@@ -175,7 +177,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
 
         try:
             for week in weeks:
-                for destination in params.destinations:
+                for destination in params.destinations_for(SOURCE_GOOGLE):
                     for origin in params.origins_for(SOURCE_GOOGLE):
                         try:
                             out = await search(
@@ -226,7 +228,8 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
         return Trip(
             source=SOURCE_GOOGLE,
             destination=destination,
-            city=city,
+            # Ryanair's city name when it flies there too, else the one in Google's airport name.
+            city=city or city_from_airport(out.destination_name),
             country=country,
             price=round(out.price + back.price, 2),
             currency=self.hass.config.currency,

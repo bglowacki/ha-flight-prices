@@ -12,7 +12,7 @@ from yarl import URL
 
 from custom_components.flight_prices.models import Hours
 from custom_components.flight_prices.sources import SourceBlocked, SourceError
-from custom_components.flight_prices.sources.google import GoogleSource, parse_page
+from custom_components.flight_prices.sources.google import GoogleSource, city_from_airport, parse_page
 from custom_components.flight_prices.sources.ryanair import URL as RYANAIR_URL, RyanairSource
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -77,6 +77,7 @@ def segment(
 ) -> list:
     seg: list[Any] = [None] * 33
     seg[3], seg[6], seg[8], seg[10] = origin, destination, dep, arr
+    seg[4], seg[5] = f"Aeroporto di {origin}", f"Aeroporto di {destination}-Centro"
     seg[20], seg[21] = day, day
     seg[22] = [code, number, None, {"U2": "easyJet", "FR": "Ryanair", "AZ": "ITA"}[code]]
     return seg
@@ -127,6 +128,22 @@ def test_parse_page_reads_best_and_other_flights() -> None:
     assert flights[1].leg.arrival == datetime(2026, 11, 6, 0, 31)
     assert flights[3].leg.destination == "LIS"
     assert flights[0].leg.airline == "easyJet"
+    assert flights[0].destination_name == "Aeroporto di LIS-Centro"
+
+
+@pytest.mark.parametrize(
+    ("airport", "city"),
+    [
+        ("Aeroporto di Lisbona-Portela", "Lisbona"),
+        ("Aeroporto internazionale di Amburgo", "Amburgo"),
+        ("Aeroporto di Londra-Gatwick", "Londra"),
+        ("Lisbon Humberto Delgado Airport", "Lisbon Humberto Delgado"),
+        ("Flughafen Hamburg", "Hamburg"),
+        (None, None),
+    ],
+)
+def test_city_from_airport(airport: str | None, city: str | None) -> None:
+    assert city_from_airport(airport) == city
 
 
 def test_parse_page_without_flights() -> None:

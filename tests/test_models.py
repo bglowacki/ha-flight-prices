@@ -93,6 +93,15 @@ def test_google_origins() -> None:
     assert params.fingerprint("google") != SearchParams.from_options(OPTIONS).fingerprint("google")
 
 
+def test_google_destinations() -> None:
+    params = SearchParams.from_options({**OPTIONS, "google_destinations": ["LIS", "PAR"]})
+    assert params.destinations_for("ryanair") == ()
+    assert params.destinations_for("google") == ("LIS", "PAR")
+    assert params.all_destinations == ("LIS", "PAR")
+    # Ryanair keeps searching anywhere: its saved trips stay valid.
+    assert params.fingerprint("ryanair") == SearchParams.from_options(OPTIONS).fingerprint("ryanair")
+
+
 def test_one_trip_per_destination_and_airport() -> None:
     trips = [_trip("BCN", 90), _trip("BCN", 95), _trip("BCN", 70, "google", "MXP"), _trip("LIS", 80)]
     assert [(trip.destination, trip.origin, trip.price) for trip in cheapest_per_route(trips)] == [

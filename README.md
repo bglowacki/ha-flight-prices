@@ -27,7 +27,7 @@ Each week keeps one trip per destination and departure airport, the cheapest acr
 | Source | Requests per search | Default interval |
 |---|---|---|
 | Ryanair | airports × weeks (2 × 8 = 16), one second apart | 3 hours |
-| Google Flights | weeks × destinations × Google departure airports × 2 (8 × 5 × 1 × 2 = 80), 20 to 30 seconds apart, about half an hour in all | 24 hours |
+| Google Flights | weeks × Google destinations × Google departure airports × 2 (8 × 5 × 1 × 2 = 80), 20 to 30 seconds apart, about half an hour in all | 24 hours |
 
 The Google search runs in the background. Its round stops at the first block (consent page, captcha, HTTP 429) or after 5 errors in a row, and is tried again at the next interval. A return is not searched when the outbound found nothing. Results are saved, so a restart of Home Assistant or a change of options shows them at once without searching again, unless the search itself changed.
 
@@ -43,6 +43,7 @@ Then add the integration in **Settings → Devices & services**. The options can
 | Destinations | IATA codes of airports or cities (`LON` is every London airport) | empty: anywhere (Ryanair only) |
 | Leave out countries | ISO codes, such as `IT` for flights within Italy; applied to what was found, so changing it needs no new search | none |
 | Sources | Ryanair, Google Flights or both | Ryanair |
+| Google Flights destinations | Searched only on Google Flights, so Ryanair can keep searching anywhere | empty: the destinations above |
 | Google Flights departure airports | Only these of the departure airports are searched on Google Flights, for example the ones Ryanair does not cover well | empty: all of them |
 | Weeks | How many weeks ahead, from the coming one (1 to 12) | 8 |
 | Outbound day and departure hours | Any weekday; hours from 0 to 24, 24 being midnight | Friday, 19 to 24 |

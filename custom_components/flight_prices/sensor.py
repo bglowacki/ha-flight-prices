@@ -28,7 +28,7 @@ async def async_setup_entry(
     params = coordinator.params
     entities: list[FlightPricesSensor] = [CheapestSensor(coordinator)]
     entities += [WeekSensor(coordinator, number) for number in range(1, params.weeks + 1)]
-    entities += [DestinationSensor(coordinator, code) for code in params.destinations]
+    entities += [DestinationSensor(coordinator, code) for code in params.all_destinations]
     entities += [SearchSensor(coordinator, source) for source in coordinator.active_sources]
     # Weeks, destinations or sources taken out of the search leave no stale entities behind.
     registry = er.async_get(hass)

@@ -37,6 +37,8 @@ class GoogleFlight:
 
     leg: Leg
     price: float
+    # As Google writes it, such as "Aeroporto di Lisbona-Portela".
+    destination_name: str | None = None
 
 
 class GoogleSource:
@@ -174,7 +176,36 @@ def _flight(item: list[Any]) -> GoogleFlight | None:
             stops=len(segments) - 1,
         ),
         price=float(price),
+        destination_name=last[5] if isinstance(last[5], str) else None,
     )
+
+
+# Words before the city in Google's airport names, in the languages of Home Assistant users seen so far.
+AIRPORT_PREFIXES = (
+    "aeroporto internazionale di ",
+    "aeroporto di ",
+    "aéroport de ",
+    "aeropuerto de ",
+    "flughafen ",
+)
+AIRPORT_SUFFIXES = (" international airport", " airport")
+
+
+def city_from_airport(name: str | None) -> str | None:
+    """'Aeroporto di Lisbona-Portela' becomes 'Lisbona': the city, without the airport's own name."""
+    if not name:
+        return None
+    lower = name.lower()
+    for prefix in AIRPORT_PREFIXES:
+        if lower.startswith(prefix):
+            name = name[len(prefix) :]
+            break
+    else:
+        for suffix in AIRPORT_SUFFIXES:
+            if lower.endswith(suffix):
+                name = name[: -len(suffix)]
+                break
+    return name.split("-")[0].strip() or None
 
 
 def _moment(day: list[int], clock: list[int | None] | None) -> datetime:

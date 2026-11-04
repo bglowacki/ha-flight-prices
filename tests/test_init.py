@@ -275,3 +275,19 @@ async def test_google_from_some_airports(hass: HomeAssistant, aioclient_mock: An
     assert aioclient_mock.call_count == 4
     assert {call[1] for call in calls} == {"MXP", "PMO"}
     assert len(calls) == 4
+
+
+async def test_ryanair_anywhere_google_list(hass: HomeAssistant, aioclient_mock: Any) -> None:
+    aioclient_mock.get(RYANAIR_URL, json=ryanair_payload())
+    calls, search = _fake_google()
+    with (
+        patch("custom_components.flight_prices.sources.google.GoogleSource.search", side_effect=search),
+        patch("custom_components.flight_prices.sources.google.GoogleSource.link", return_value="https://g"),
+    ):
+        await _setup(hass, sources=["ryanair", "google"], google_origins=["MXP"], google_destinations=["HAM"], weeks=1)
+        await hass.async_block_till_done(wait_background_tasks=True)
+    assert {call[2] for call in calls} == {"HAM", "MXP"}
+    trips = hass.states.get("sensor.weekend_week_1").attributes["trips"]
+    # Ryanair still everywhere, Google adds Hamburg.
+    assert [trip["destination"] for trip in trips] == ["HAM", "WWA", "PMO", "EDI"]
+    assert hass.states.get("sensor.weekend_ham") is not None
