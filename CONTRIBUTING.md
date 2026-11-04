@@ -33,6 +33,7 @@ The tests never reach Ryanair or Google: they read saved answers from `tests/fix
 - One change per pull request, with tests for the behaviour it adds or fixes.
 - Texts shown in Home Assistant live in `strings.json` and `translations/en.json` (identical) and `it.json`. Add every new key to all three; if you cannot translate it, leave the English text and say so in the pull request.
 - Update `README.md` when sensors, attributes, options or the number of requests change.
+- AI coding tools are fine, as they were for this project: read and test what you submit as if you had written it, and say in the pull request that you used one.
 - Commit messages say what changes for the person using the integration, for example *Leave out countries, keep one trip per destination and airport*.
 
 ## Dependencies
