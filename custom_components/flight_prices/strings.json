@@ -8,6 +8,7 @@
           "name": "Name",
           "origins": "Departure airports",
           "destinations": "Destinations",
+          "exclude_countries": "Leave out countries",
           "sources": "Sources",
           "weeks": "Weeks",
           "outbound_day": "Outbound day",
@@ -22,6 +23,7 @@
           "name": "For example Weekend from Milan.",
           "origins": "IATA codes, for example MXP and BGY. Each trip comes back to the airport it left from.",
           "destinations": "IATA codes of airports or cities (LON is every London airport). Leave empty to search anywhere: Ryanair only.",
+          "exclude_countries": "Two-letter ISO codes, such as IT to leave out flights within Italy.",
           "sources": "Ryanair finds the cheapest fare to every destination with a few requests. Google Flights covers every airline, but only for a list of destinations and with many requests spread out over about an hour.",
           "weeks": "How many weeks ahead, starting from the coming one.",
           "outbound_to": "24 is midnight.",
@@ -35,7 +37,8 @@
       "invalid_code": "Use three-letter IATA codes, such as MXP.",
       "no_source": "Choose at least one source.",
       "google_needs_destinations": "Google Flights needs a list of destinations: to search anywhere, add Ryanair.",
-      "invalid_hours": "The end must come after the start."
+      "invalid_hours": "The end must come after the start.",
+      "invalid_country": "Use two-letter ISO country codes, such as IT."
     },
     "abort": {
       "already_configured": "This search already exists."
@@ -48,6 +51,7 @@
         "data": {
           "origins": "Departure airports",
           "destinations": "Destinations",
+          "exclude_countries": "Leave out countries",
           "sources": "Sources",
           "weeks": "Weeks",
           "outbound_day": "Outbound day",
@@ -63,6 +67,7 @@
         "data_description": {
           "origins": "IATA codes, for example MXP and BGY. Each trip comes back to the airport it left from.",
           "destinations": "IATA codes of airports or cities (LON is every London airport). Leave empty to search anywhere: Ryanair only.",
+          "exclude_countries": "Two-letter ISO codes, such as IT to leave out flights within Italy.",
           "sources": "Ryanair finds the cheapest fare to every destination with a few requests. Google Flights covers every airline, but only for a list of destinations and with many requests spread out over about an hour.",
           "weeks": "How many weeks ahead, starting from the coming one.",
           "outbound_to": "24 is midnight.",
@@ -78,7 +83,8 @@
       "invalid_code": "Use three-letter IATA codes, such as MXP.",
       "no_source": "Choose at least one source.",
       "google_needs_destinations": "Google Flights needs a list of destinations: to search anywhere, add Ryanair.",
-      "invalid_hours": "The end must come after the start."
+      "invalid_hours": "The end must come after the start.",
+      "invalid_country": "Use two-letter ISO country codes, such as IT."
     }
   },
   "selector": {

@@ -14,6 +14,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.flight_prices.const import (
     CONF_DESTINATIONS,
     CONF_DIRECT_ONLY,
+    CONF_EXCLUDE_COUNTRIES,
     CONF_ORIGINS,
     CONF_OUTBOUND_DAY,
     CONF_OUTBOUND_FROM,
@@ -33,6 +34,7 @@ NOW = "2026-11-04 10:00:00+00:00"
 OPTIONS: dict[str, Any] = {
     CONF_ORIGINS: ["MXP", "BGY"],
     CONF_DESTINATIONS: [],
+    CONF_EXCLUDE_COUNTRIES: [],
     CONF_SOURCES: ["ryanair"],
     CONF_WEEKS: 2,
     CONF_OUTBOUND_DAY: 4,

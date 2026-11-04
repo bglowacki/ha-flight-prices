@@ -10,7 +10,7 @@ from custom_components.flight_prices.models import (
     SearchParams,
     SourceState,
     Trip,
-    cheapest_per_destination,
+    cheapest_per_route,
 )
 
 from .conftest import OPTIONS
@@ -83,9 +83,13 @@ def test_fingerprint_changes_with_the_search() -> None:
     assert params.fingerprint("google") != other.fingerprint("google")
 
 
-def test_one_trip_per_destination() -> None:
-    trips = [_trip("BCN", 90), _trip("BCN", 70, "google", "MXP"), _trip("LIS", 80)]
-    assert [(trip.destination, trip.price) for trip in cheapest_per_destination(trips)] == [("BCN", 70), ("LIS", 80)]
+def test_one_trip_per_destination_and_airport() -> None:
+    trips = [_trip("BCN", 90), _trip("BCN", 95), _trip("BCN", 70, "google", "MXP"), _trip("LIS", 80)]
+    assert [(trip.destination, trip.origin, trip.price) for trip in cheapest_per_route(trips)] == [
+        ("BCN", "MXP", 70),
+        ("LIS", "BGY", 80),
+        ("BCN", "BGY", 90),
+    ]
 
 
 def test_trip_survives_storage() -> None:

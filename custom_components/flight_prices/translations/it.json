@@ -8,6 +8,7 @@
           "name": "Nome",
           "origins": "Aeroporti di partenza",
           "destinations": "Destinazioni",
+          "exclude_countries": "Escludi paesi",
           "sources": "Fonti",
           "weeks": "Settimane",
           "outbound_day": "Giorno di andata",
@@ -22,6 +23,7 @@
           "name": "Ad esempio Weekend da Milano.",
           "origins": "Codici IATA, ad esempio MXP e BGY. Ogni viaggio torna all'aeroporto da cui è partito.",
           "destinations": "Codici IATA di aeroporti o città (LON vale per tutti gli aeroporti di Londra). Lascia vuoto per cercare ovunque: solo con Ryanair.",
+          "exclude_countries": "Codici ISO di due lettere, come IT per escludere i voli in Italia.",
           "sources": "Ryanair trova la tariffa più bassa verso ogni destinazione con poche richieste. Google Flights copre tutte le compagnie, ma solo per un elenco di destinazioni e con molte richieste distribuite in circa un'ora.",
           "weeks": "Quante settimane avanti, a partire dalla prossima.",
           "outbound_to": "24 è mezzanotte.",
@@ -35,7 +37,8 @@
       "invalid_code": "Usa codici IATA di tre lettere, come MXP.",
       "no_source": "Scegli almeno una fonte.",
       "google_needs_destinations": "Google Flights ha bisogno di un elenco di destinazioni: per cercare ovunque aggiungi Ryanair.",
-      "invalid_hours": "La fine deve venire dopo l'inizio."
+      "invalid_hours": "La fine deve venire dopo l'inizio.",
+      "invalid_country": "Usa codici ISO di due lettere, come IT."
     },
     "abort": {
       "already_configured": "Questa ricerca esiste già."
@@ -48,6 +51,7 @@
         "data": {
           "origins": "Aeroporti di partenza",
           "destinations": "Destinazioni",
+          "exclude_countries": "Escludi paesi",
           "sources": "Fonti",
           "weeks": "Settimane",
           "outbound_day": "Giorno di andata",
@@ -63,6 +67,7 @@
         "data_description": {
           "origins": "Codici IATA, ad esempio MXP e BGY. Ogni viaggio torna all'aeroporto da cui è partito.",
           "destinations": "Codici IATA di aeroporti o città (LON vale per tutti gli aeroporti di Londra). Lascia vuoto per cercare ovunque: solo con Ryanair.",
+          "exclude_countries": "Codici ISO di due lettere, come IT per escludere i voli in Italia.",
           "sources": "Ryanair trova la tariffa più bassa verso ogni destinazione con poche richieste. Google Flights copre tutte le compagnie, ma solo per un elenco di destinazioni e con molte richieste distribuite in circa un'ora.",
           "weeks": "Quante settimane avanti, a partire dalla prossima.",
           "outbound_to": "24 è mezzanotte.",
@@ -78,7 +83,8 @@
       "invalid_code": "Usa codici IATA di tre lettere, come MXP.",
       "no_source": "Scegli almeno una fonte.",
       "google_needs_destinations": "Google Flights ha bisogno di un elenco di destinazioni: per cercare ovunque aggiungi Ryanair.",
-      "invalid_hours": "La fine deve venire dopo l'inizio."
+      "invalid_hours": "La fine deve venire dopo l'inizio.",
+      "invalid_country": "Usa codici ISO di due lettere, come IT."
     }
   },
   "selector": {

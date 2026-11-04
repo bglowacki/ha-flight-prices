@@ -52,6 +52,7 @@ async def test_create_anywhere(hass: HomeAssistant) -> None:
         ({"origins": ["MALPENSA"]}, {"origins": "invalid_code"}),
         ({"destinations": ["LIS", "12"]}, {"destinations": "invalid_code"}),
         ({"sources": []}, {"sources": "no_source"}),
+        ({"exclude_countries": ["ITA"]}, {"exclude_countries": "invalid_country"}),
         ({"sources": ["google"]}, {"destinations": "google_needs_destinations"}),
         ({"outbound_from": 20, "outbound_to": 19}, {"outbound_to": "invalid_hours"}),
         ({"return_from": 14, "return_to": 14}, {"return_to": "invalid_hours"}),
@@ -71,6 +72,12 @@ async def test_google_with_destinations(hass: HomeAssistant) -> None:
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["options"]["destinations"] == ["LIS", "LON"]
+
+
+async def test_exclude_countries(hass: HomeAssistant) -> None:
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {**FORM, "exclude_countries": ["it"]})
+    assert result["options"]["exclude_countries"] == ["IT"]
 
 
 async def test_same_search_twice(hass: HomeAssistant) -> None:

@@ -19,6 +19,8 @@ CONF_RETURN_DAY: Final = "return_day"
 CONF_RETURN_FROM: Final = "return_from"
 CONF_RETURN_TO: Final = "return_to"
 CONF_DIRECT_ONLY: Final = "direct_only"
+# ISO codes of countries left out, such as IT for flights within Italy.
+CONF_EXCLUDE_COUNTRIES: Final = "exclude_countries"
 CONF_RYANAIR_INTERVAL: Final = "ryanair_interval"
 CONF_GOOGLE_INTERVAL: Final = "google_interval"
 
@@ -48,9 +50,9 @@ RYANAIR_DELAY: Final = 1.0
 # 160 pages takes about an hour, and a block stops it at once.
 GOOGLE_DELAY: Final = (20.0, 30.0)
 
-# Trips kept per week, at most one per destination.
-TRIPS_PER_WEEK: Final = 10
-# Trips shown in the attributes of a week sensor.
-TRIPS_IN_ATTRIBUTES: Final = 5
+# Trips kept per week, at most one per destination and departure airport.
+TRIPS_PER_WEEK: Final = 40
+# Trips in the attributes of a week sensor, cheapest first.
+TRIPS_IN_ATTRIBUTES: Final = 30
 
 STORAGE_VERSION: Final = 1

@@ -29,7 +29,7 @@ from .const import (
     TICK,
     TRIPS_PER_WEEK,
 )
-from .models import FlightData, SearchParams, SourceState, Trip, Week, WeekResult, cheapest_per_destination
+from .models import FlightData, SearchParams, SourceState, Trip, Week, WeekResult, cheapest_per_route
 from .sources import SourceBlocked, SourceError
 from .sources.google import GoogleSource
 from .sources.ryanair import RyanairSource
@@ -65,7 +65,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
             SOURCE_GOOGLE: timedelta(hours=entry.options.get(CONF_GOOGLE_INTERVAL, DEFAULT_GOOGLE_HOURS)),
         }
         self.states: dict[str, SourceState] = {}
-        # City and country of a destination, learned from Ryanair, for the trips found on Google.
+        # City, country and country code of a destination, learned from Ryanair, for the trips found on Google.
         self.names: dict[str, list[str | None]] = {}
         self.google_running = False
         self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}")
@@ -151,7 +151,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
             state.trips = kept + found
             state.last_success = now
             for trip in found:
-                self.names[trip.destination] = [trip.city, trip.country]
+                self.names[trip.destination] = [trip.city, trip.country, trip.country_code]
         state.error = error
         if error:
             _LOGGER.warning("Ryanair search %s: %s", "incomplete" if searched else "failed", error)
@@ -222,7 +222,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
 
     def _google_trip(self, destination: str, out: Any, back: Any, week: Week) -> Trip:
         assert self.google is not None
-        city, country = self.names.get(destination, [None, None])
+        city, country, code = [*self.names.get(destination, []), None, None, None][:3]
         return Trip(
             source=SOURCE_GOOGLE,
             destination=destination,
@@ -233,26 +233,34 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
             outbound=out.leg,
             inbound=back.leg,
             link=self.google.link(out.leg.origin, destination, week.outbound, week.inbound),
+            country_code=code,
         )
 
     def _assemble(self, weeks: list[Week]) -> FlightData:
+        # Countries are left out here, not in the searches: changing them needs no new search.
+        excluded = {code.upper() for code in self.params.exclude_countries}
         results = []
         for week in weeks:
             trips = [
-                self._named(trip)
+                named
                 for state in self.states.values()
                 for trip in state.trips
-                if trip.outbound_date == week.outbound and trip.inbound.departure.date() == week.inbound
+                if trip.outbound_date == week.outbound
+                and trip.inbound.departure.date() == week.inbound
+                and (named := self._named(trip)).country_code not in excluded
             ]
-            best = cheapest_per_destination(trips)
-            results.append(WeekResult(week, tuple(best[:TRIPS_PER_WEEK]), len(best)))
+            best = cheapest_per_route(trips)
+            found = len({trip.destination for trip in best})
+            results.append(WeekResult(week, tuple(best[:TRIPS_PER_WEEK]), found))
         return FlightData(weeks=tuple(results), sources=dict(self.states))
 
     def _named(self, trip: Trip) -> Trip:
-        if trip.city or trip.destination not in self.names:
+        if (trip.city and trip.country_code) or trip.destination not in self.names:
             return trip
-        city, country = self.names[trip.destination]
-        return replace(trip, city=city, country=country)
+        city, country, code = [*self.names[trip.destination], None, None, None][:3]
+        return replace(
+            trip, city=trip.city or city, country=trip.country or country, country_code=trip.country_code or code
+        )
 
     def _to_store(self) -> dict[str, Any]:
         today = dt_util.now().date()

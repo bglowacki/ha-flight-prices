@@ -26,6 +26,7 @@ from homeassistant.helpers.selector import (
 from .const import (
     CONF_DESTINATIONS,
     CONF_DIRECT_ONLY,
+    CONF_EXCLUDE_COUNTRIES,
     CONF_GOOGLE_INTERVAL,
     CONF_ORIGINS,
     CONF_OUTBOUND_DAY,
@@ -56,6 +57,7 @@ from .const import (
 from .coordinator import FlightPricesConfigEntry
 
 AIRPORT_RE = re.compile(r"^[A-Z]{3}$")
+COUNTRY_RE = re.compile(r"^[A-Z]{2}$")
 
 CODES = TextSelector(TextSelectorConfig(multiple=True))
 DAY = SelectSelector(
@@ -76,6 +78,7 @@ SEARCH_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_ORIGINS): CODES,
         vol.Optional(CONF_DESTINATIONS): CODES,
+        vol.Optional(CONF_EXCLUDE_COUNTRIES): CODES,
         vol.Required(CONF_SOURCES, default=[SOURCE_RYANAIR]): SelectSelector(
             SelectSelectorConfig(
                 options=list(SOURCES), multiple=True, translation_key="sources", mode=SelectSelectorMode.LIST
@@ -112,6 +115,7 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
     errors: dict[str, str] = {}
     origins = _codes(user_input.get(CONF_ORIGINS))
     destinations = _codes(user_input.get(CONF_DESTINATIONS))
+    countries = _codes(user_input.get(CONF_EXCLUDE_COUNTRIES))
     sources = [source for source in SOURCES if source in user_input.get(CONF_SOURCES, ())]
     if not origins:
         errors[CONF_ORIGINS] = "no_origin"
@@ -119,6 +123,8 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
         errors[CONF_ORIGINS] = "invalid_code"
     if not all(AIRPORT_RE.match(code) for code in destinations):
         errors[CONF_DESTINATIONS] = "invalid_code"
+    if not all(COUNTRY_RE.match(code) for code in countries):
+        errors[CONF_EXCLUDE_COUNTRIES] = "invalid_country"
     if not sources:
         errors[CONF_SOURCES] = "no_source"
     elif sources == [SOURCE_GOOGLE] and not destinations:
@@ -127,6 +133,7 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
     options: dict[str, Any] = {
         CONF_ORIGINS: origins,
         CONF_DESTINATIONS: destinations,
+        CONF_EXCLUDE_COUNTRIES: countries,
         CONF_SOURCES: sources,
         CONF_WEEKS: int(user_input[CONF_WEEKS]),
         CONF_OUTBOUND_DAY: int(user_input[CONF_OUTBOUND_DAY]),

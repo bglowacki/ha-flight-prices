@@ -100,6 +100,7 @@ class RyanairSource:
             outbound=outbound,
             inbound=inbound,
             link=self.link(outbound, inbound),
+            country_code=(city.get("countryCode") or "").upper() or None,
         )
 
     def link(self, outbound: Leg, inbound: Leg) -> str:

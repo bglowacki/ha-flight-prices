@@ -12,6 +12,7 @@ from typing import Any
 from .const import (
     CONF_DESTINATIONS,
     CONF_DIRECT_ONLY,
+    CONF_EXCLUDE_COUNTRIES,
     CONF_ORIGINS,
     CONF_OUTBOUND_DAY,
     CONF_OUTBOUND_FROM,
@@ -84,6 +85,8 @@ class Trip:
     outbound: Leg
     inbound: Leg
     link: str
+    # ISO code of the destination's country, upper case.
+    country_code: str | None = None
 
     @property
     def origin(self) -> str:
@@ -115,6 +118,7 @@ class Trip:
             "destination": self.destination,
             "city": self.city,
             "country": self.country,
+            "country_code": self.country_code,
             "price": self.price,
             "currency": self.currency,
             "outbound": self.outbound.as_dict(),
@@ -128,6 +132,7 @@ class Trip:
             "destination": self.destination,
             "city": self.city or self.inbound.origin,
             "country": self.country,
+            "country_code": self.country_code,
             "origin": self.origin,
             "price": self.price,
             "airline": self.airline,
@@ -149,6 +154,7 @@ class Trip:
             outbound=Leg.from_dict(data["outbound"]),
             inbound=Leg.from_dict(data["return"]),
             link=data["link"],
+            country_code=data.get("country_code"),
         )
 
 
@@ -194,6 +200,7 @@ class SearchParams:
     return_day: int
     return_hours: Hours
     direct_only: bool
+    exclude_countries: tuple[str, ...] = ()
 
     @classmethod
     def from_options(cls, options: Mapping[str, Any]) -> SearchParams:
@@ -213,6 +220,7 @@ class SearchParams:
                 int(options.get(CONF_RETURN_TO, DEFAULT_RETURN_TO)),
             ),
             direct_only=bool(options.get(CONF_DIRECT_ONLY, DEFAULT_DIRECT_ONLY)),
+            exclude_countries=tuple(options.get(CONF_EXCLUDE_COUNTRIES, ())),
         )
 
     @property
@@ -222,6 +230,8 @@ class SearchParams:
     def fingerprint(self, source: str) -> str:
         """Changes when a source would search for something else."""
         what: dict[str, Any] = {
+            # Raised when saved trips lack something new: 2 added the country code.
+            "version": 2,
             "origins": sorted(self.origins),
             "destinations": sorted(self.destinations),
             "days": [self.outbound_day, self.return_day],
@@ -295,10 +305,11 @@ class FlightData:
     sources: Mapping[str, SourceState]
 
 
-def cheapest_per_destination(trips: Iterable[Trip]) -> list[Trip]:
-    """One trip per destination, the cheapest, then sorted by price."""
-    best: dict[str, Trip] = {}
+def cheapest_per_route(trips: Iterable[Trip]) -> list[Trip]:
+    """One trip per destination and departure airport, the cheapest, then sorted by price."""
+    best: dict[tuple[str, str], Trip] = {}
     for trip in trips:
-        if (current := best.get(trip.destination)) is None or trip.price < current.price:
-            best[trip.destination] = trip
-    return sorted(best.values(), key=lambda trip: (trip.price, trip.destination))
+        key = (trip.destination, trip.origin)
+        if (current := best.get(key)) is None or trip.price < current.price:
+            best[key] = trip
+    return sorted(best.values(), key=lambda trip: (trip.price, trip.destination, trip.origin))

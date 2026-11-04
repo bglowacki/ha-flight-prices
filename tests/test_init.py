@@ -81,7 +81,18 @@ async def test_destinations_found_beyond_the_kept_trips(hass: HomeAssistant, aio
     await _setup(hass)
     week = hass.states.get("sensor.weekend_week_1")
     assert week.attributes["destinations_found"] == 12
-    assert len(week.attributes["trips"]) == 5
+    assert len(week.attributes["trips"]) == 12
+
+
+async def test_excluded_countries(hass: HomeAssistant, aioclient_mock: Any) -> None:
+    aioclient_mock.get(RYANAIR_URL, json=ryanair_payload())
+    await _setup(hass, exclude_countries=["IT"])
+    week = hass.states.get("sensor.weekend_week_1")
+    assert [(trip["city"], trip["country_code"]) for trip in week.attributes["trips"]] == [
+        ("Varsavia", "PL"),
+        ("Edimburgo", "GB"),
+    ]
+    assert week.attributes["destinations_found"] == 2
 
 
 async def test_saved_results_survive_a_reload(hass: HomeAssistant, aioclient_mock: Any, frozen) -> None:
@@ -235,9 +246,14 @@ async def test_google_takes_names_from_ryanair(hass: HomeAssistant, aioclient_mo
         await _setup(hass, sources=["ryanair", "google"], destinations=["PMO", "WWA"])
         await hass.async_block_till_done(wait_background_tasks=True)
     week = hass.states.get("sensor.weekend_week_1")
-    # Google is cheaper to both: 50 + 60 from MXP.
-    assert [(trip["destination"], trip["city"], trip["source"]) for trip in week.attributes["trips"]] == [
-        ("PMO", "Palermo", "google"),
-        ("WWA", "Varsavia", "google"),
+    # Google is cheaper everywhere: 50 + 60 from MXP, 70 + 60 from BGY.
+    assert [
+        (trip["destination"], trip["origin"], trip["city"], trip["country_code"], trip["source"])
+        for trip in week.attributes["trips"]
+    ] == [
+        ("PMO", "MXP", "Palermo", "IT", "google"),
+        ("WWA", "MXP", "Varsavia", "PL", "google"),
+        ("PMO", "BGY", "Palermo", "IT", "google"),
+        ("WWA", "BGY", "Varsavia", "PL", "google"),
     ]
     assert hass.states.get("sensor.weekend_pmo").attributes["city"] == "Palermo"

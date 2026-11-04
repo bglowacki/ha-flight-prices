@@ -15,12 +15,12 @@ One device per search, with these sensors (prices for one adult, return trip):
 
 | Sensor | State | Attributes |
 |---|---|---|
-| Week 1 … Week N | Cheapest trip of that week | `outbound_date`, `return_date`, `destinations_found`, `trips`: the 5 cheapest destinations with city, country, departure airport, price, airline, source, outbound and return flights (times, flight numbers, stops) and a booking link |
+| Week 1 … Week N | Cheapest trip of that week | `outbound_date`, `return_date`, `destinations_found`, `trips`: up to 30 trips, cheapest first, one per destination and departure airport, with city, country, country code, departure airport, price, airline, source, outbound and return flights (times, flight numbers, stops) and a booking link |
 | Cheapest trip | Cheapest trip of all the weeks | `outbound_date`, `return_date`, `city`, `trip` |
 | One per destination, with a list | Cheapest trip to it over the weeks | `city`, `outbound_date`, `weeks` (price per week), `trip` |
 | Ryanair search, Google Flights search (diagnostic) | Last successful search | `last_attempt`, `error`, `trips`, `running` |
 
-Each week keeps at most one trip per destination, the cheapest across departure airports and sources. Every trip comes back to the airport it left from. The lists in the attributes are not recorded in the history.
+Each week keeps one trip per destination and departure airport, the cheapest across sources, so a dashboard can filter by airport. Every trip comes back to the airport it left from. The lists in the attributes are not recorded in the history.
 
 ## Requests
 
@@ -41,6 +41,7 @@ Then add the integration in **Settings → Devices & services**. The options can
 |---|---|
 | Departure airports | IATA codes, such as `MXP`, `BGY` |
 | Destinations | IATA codes of airports or cities (`LON` is every London airport); empty to search anywhere (Ryanair only) |
+| Leave out countries | None; `IT` leaves out flights within Italy. Applied to what was found, so changing it needs no new search |
 | Sources | Ryanair |
 | Weeks | 8 |
 | Outbound day and departure hours | Friday, 19 to 24 |
