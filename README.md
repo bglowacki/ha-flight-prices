@@ -59,6 +59,8 @@ pytest
 ruff check . && ruff format --check .
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
 ## License
 
 MIT. Ryanair and Google Flights are trademarks of their owners; this project is not affiliated with them.
