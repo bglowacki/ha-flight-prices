@@ -244,7 +244,8 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
                 for trip in state.trips
                 if trip.outbound_date == week.outbound and trip.inbound.departure.date() == week.inbound
             ]
-            results.append(WeekResult(week, tuple(cheapest_per_destination(trips)[:TRIPS_PER_WEEK])))
+            best = cheapest_per_destination(trips)
+            results.append(WeekResult(week, tuple(best[:TRIPS_PER_WEEK]), len(best)))
         return FlightData(weeks=tuple(results), sources=dict(self.states))
 
     def _named(self, trip: Trip) -> Trip:

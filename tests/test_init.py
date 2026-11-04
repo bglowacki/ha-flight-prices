@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
+import json
 from typing import Any
 from unittest.mock import patch
 
@@ -50,6 +51,7 @@ async def test_ryanair_anywhere(hass: HomeAssistant, aioclient_mock: Any) -> Non
     assert week.attributes["return_date"] == "2026-11-08"
     # Both airports answered with the same fixture: one trip per destination is kept.
     assert week.attributes["destinations_found"] == 3
+
     first = week.attributes["trips"][0]
     assert first["city"] == "Varsavia"
     assert first["outbound"]["departure"] == "2026-11-06T19:00"
@@ -63,6 +65,23 @@ async def test_ryanair_anywhere(hass: HomeAssistant, aioclient_mock: Any) -> Non
     search = hass.states.get("sensor.weekend_ryanair_search")
     assert search.state == "2026-11-04T10:00:00+00:00"
     assert search.attributes["error"] is None
+
+
+async def test_destinations_found_beyond_the_kept_trips(hass: HomeAssistant, aioclient_mock: Any) -> None:
+    payload = ryanair_payload()
+    fare = payload["fares"][0]
+    fares = []
+    for number in range(12):
+        copy = json.loads(json.dumps(fare))
+        copy["outbound"]["arrivalAirport"]["iataCode"] = f"X{number:02d}"
+        copy["outbound"]["arrivalAirport"]["city"] = {"name": f"City {number}"}
+        copy["summary"]["price"]["value"] = 100 + number
+        fares.append(copy)
+    aioclient_mock.get(RYANAIR_URL, json={**payload, "fares": fares})
+    await _setup(hass)
+    week = hass.states.get("sensor.weekend_week_1")
+    assert week.attributes["destinations_found"] == 12
+    assert len(week.attributes["trips"]) == 5
 
 
 async def test_saved_results_survive_a_reload(hass: HomeAssistant, aioclient_mock: Any, frozen) -> None:

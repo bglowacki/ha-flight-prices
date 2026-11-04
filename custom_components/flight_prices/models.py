@@ -283,6 +283,8 @@ class WeekResult:
 
     week: Week
     trips: tuple[Trip, ...]
+    # Destinations found in all, also beyond the trips kept.
+    found: int = 0
 
 
 @dataclass(frozen=True)

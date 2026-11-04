@@ -97,7 +97,7 @@ class WeekSensor(PriceSensor):
             return None
         return {
             **_week_dates(result),
-            "destinations_found": len(result.trips),
+            "destinations_found": result.found,
             "trips": [trip.as_attributes() for trip in result.trips[:TRIPS_IN_ATTRIBUTES]],
         }
 
