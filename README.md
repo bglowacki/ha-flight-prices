@@ -61,6 +61,11 @@ ruff check . && ruff format --check .
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
+## Roadmap
+
+- An event when a price drops below the lowest seen so far, for a destination or a week
+- More than one passenger
+
 ## License
 
 MIT. Ryanair and Google Flights are trademarks of their owners; this project is not affiliated with them.
