@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping. Bug reports, fixes, new options and new sources are all welcome. For anything bigger than a small fix, open an issue first, so we can agree on the approach before you write the code.
+Thanks for helping. Bug reports, fixes, new options and new sources are all welcome. For anything bigger than a small fix, open an issue first, so we can agree on the approach before you write the code. Everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Be gentle with the sources
 
