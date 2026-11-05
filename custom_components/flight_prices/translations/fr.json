@@ -34,6 +34,22 @@
           "return_to": "24 correspond à minuit.",
           "direct_only": "Pour Google Flights uniquement : Ryanair vole toujours en direct."
         }
+      },
+      "summary": {
+        "title": "Requêtes à Google Flights",
+        "description": "Cette recherche fait jusqu'à **{google_round} requêtes** à Google Flights par tour, environ {google_minutes} minutes, toutes les {google_hours} heures : jusqu'à **{google_day} par jour**, sur une limite de {limit}. C'est le maximum : le retour n'est pas cherché si l'aller n'a rien trouvé.\n\nRyanair, s'il est choisi, fait une requête par aéroport et par semaine.",
+        "menu_options": {
+          "save": "Enregistrer",
+          "change": "Modifier la recherche"
+        }
+      },
+      "summary_high": {
+        "title": "Requêtes à Google Flights",
+        "description": "Cette recherche fait jusqu'à **{google_round} requêtes** à Google Flights par tour, environ {google_minutes} minutes, toutes les {google_hours} heures : jusqu'à **{google_day} par jour**, sur une limite de {limit}. C'est le maximum : le retour n'est pas cherché si l'aller n'a rien trouvé.\n\nRyanair, s'il est choisi, fait une requête par aéroport et par semaine.\n\n⚠️ **Proche de la limite.** Avec trop de recherches automatiques, Google affiche un captcha à toute la connexion de la maison. Si vous n'en avez pas besoin, utilisez moins de destinations, d'aéroports de départ ou de semaines pour Google, ou un intervalle plus long.",
+        "menu_options": {
+          "save": "Enregistrer",
+          "change": "Modifier la recherche"
+        }
       }
     },
     "error": {
@@ -53,7 +69,7 @@
     "step": {
       "init": {
         "title": "Modifier la recherche",
-        "description": "Les modifications s'appliquent tout de suite : une source ne relance sa recherche que si ce qu'elle cherche change (y compris avec plus de semaines). Le [guide de configuration]({guide_url}) (en anglais) explique chaque option.",
+        "description": "Les modifications s'appliquent tout de suite : une source ne relance sa recherche que si ce qu'elle cherche change (y compris avec plus de semaines). Le [guide de configuration]({guide_url}) (en anglais) explique chaque option. Cette recherche fait aujourd'hui jusqu'à {google_day} requêtes par jour à Google Flights, sur une limite de {limit}.",
         "data": {
           "origins": "Aéroports de départ",
           "destinations": "Destinations",
@@ -85,6 +101,22 @@
           "direct_only": "Pour Google Flights uniquement : Ryanair vole toujours en direct.",
           "ryanair_interval": "Heures entre deux recherches.",
           "google_interval": "Heures entre deux recherches, au moins 12 ; 24 recommandées. Une recherche lit chaque semaine, destination et aéroport, aller et retour. Chercher plus souvent sert peu, car les tarifs à quelques semaines bougent lentement, et risque un blocage par Google pour toute la connexion de la maison."
+        }
+      },
+      "summary": {
+        "title": "Requêtes à Google Flights",
+        "description": "Cette recherche fait jusqu'à **{google_round} requêtes** à Google Flights par tour, environ {google_minutes} minutes, toutes les {google_hours} heures : jusqu'à **{google_day} par jour**, sur une limite de {limit}. C'est le maximum : le retour n'est pas cherché si l'aller n'a rien trouvé.\n\nRyanair, s'il est choisi, fait une requête par aéroport et par semaine.",
+        "menu_options": {
+          "save": "Enregistrer",
+          "change": "Modifier la recherche"
+        }
+      },
+      "summary_high": {
+        "title": "Requêtes à Google Flights",
+        "description": "Cette recherche fait jusqu'à **{google_round} requêtes** à Google Flights par tour, environ {google_minutes} minutes, toutes les {google_hours} heures : jusqu'à **{google_day} par jour**, sur une limite de {limit}. C'est le maximum : le retour n'est pas cherché si l'aller n'a rien trouvé.\n\nRyanair, s'il est choisi, fait une requête par aéroport et par semaine.\n\n⚠️ **Proche de la limite.** Avec trop de recherches automatiques, Google affiche un captcha à toute la connexion de la maison. Si vous n'en avez pas besoin, utilisez moins de destinations, d'aéroports de départ ou de semaines pour Google, ou un intervalle plus long.",
+        "menu_options": {
+          "save": "Enregistrer",
+          "change": "Modifier la recherche"
         }
       }
     },

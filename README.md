@@ -61,7 +61,7 @@ It reads the sensors of the search, so it follows the options: change the weeks,
 The Google search runs in the background. Its round stops at the first block (consent page, captcha, HTTP 429) or after 5 errors in a row, and is tried again at the next interval. A return is not searched when the outbound found nothing. Results are saved, so a restart of Home Assistant or a change of options shows them at once without searching again, unless the search itself changed.
 
 > [!CAUTION]
-> Too many automatic searches get your home's internet connection a captcha from Google, for every device at home. The integration refuses a Google setup over **300 requests a day** and an interval under **12 hours**; once a day (the default) is recommended. See the [configuration guide](https://github.com/flaviorighi/ha-flight-prices/blob/main/docs/configuration.md#how-many-requests) for the numbers.
+> Too many automatic searches get your home's internet connection a captcha from Google, for every device at home. Before saving, the form shows how many requests a Google setup makes, with a warning from 200 a day; it refuses a setup over **300 requests a day** and an interval under **12 hours**. Once a day (the default) is recommended. See the [configuration guide](https://github.com/flaviorighi/ha-flight-prices/blob/main/docs/configuration.md#how-many-requests) for the numbers.
 
 ## Installation
 

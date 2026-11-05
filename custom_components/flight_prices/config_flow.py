@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 import re
 from typing import Any
 
@@ -51,6 +52,8 @@ from .const import (
     DEFAULT_RYANAIR_HOURS,
     DEFAULT_WEEKS,
     DOMAIN,
+    GOOGLE_DELAY,
+    GOOGLE_HIGH_REQUESTS_PER_DAY,
     GOOGLE_MAX_REQUESTS_PER_DAY,
     GOOGLE_MIN_HOURS,
     GUIDE_URL,
@@ -117,22 +120,59 @@ def _codes(values: Any) -> list[str]:
     return list(dict.fromkeys(code.strip().upper() for code in values or () if code.strip()))
 
 
-def google_requests_per_day(options: Mapping[str, Any]) -> int:
-    """The most requests Google Flights makes in a day: weeks x destinations x airports x 2, per round."""
-    if SOURCE_GOOGLE not in options.get(CONF_SOURCES, ()):
-        return 0
-    destinations = options.get(CONF_GOOGLE_DESTINATIONS) or options.get(CONF_DESTINATIONS) or ()
-    origins = options.get(CONF_GOOGLE_ORIGINS) or options.get(CONF_ORIGINS) or ()
-    per_round = int(options.get(CONF_WEEKS, DEFAULT_WEEKS)) * len(destinations) * len(origins) * 2
-    hours = max(int(options.get(CONF_GOOGLE_INTERVAL, DEFAULT_GOOGLE_HOURS)), GOOGLE_MIN_HOURS)
-    return -(-per_round * 24 // hours)
+@dataclass(frozen=True)
+class Requests:
+    """The most requests a search makes: Google skips the return when the outbound found nothing."""
+
+    google_round: int
+    google_hours: int
+    ryanair_round: int
+    ryanair_hours: int
+
+    @property
+    def google_day(self) -> int:
+        return -(-self.google_round * 24 // self.google_hours) if self.google_round else 0
+
+    @property
+    def google_minutes(self) -> int:
+        """A round, at the average pause between two requests."""
+        return round(self.google_round * sum(GOOGLE_DELAY) / 2 / 60)
+
+    @property
+    def high(self) -> bool:
+        return self.google_day >= GOOGLE_HIGH_REQUESTS_PER_DAY
+
+
+def count_requests(options: Mapping[str, Any]) -> Requests:
+    """Per round: Google weeks x destinations x airports x 2 (out and back), Ryanair airports x weeks."""
+    sources = options.get(CONF_SOURCES, ())
+    weeks = int(options.get(CONF_WEEKS, DEFAULT_WEEKS))
+    google_round = 0
+    if SOURCE_GOOGLE in sources:
+        destinations = options.get(CONF_GOOGLE_DESTINATIONS) or options.get(CONF_DESTINATIONS) or ()
+        origins = options.get(CONF_GOOGLE_ORIGINS) or options.get(CONF_ORIGINS) or ()
+        google_round = weeks * len(destinations) * len(origins) * 2
+    return Requests(
+        google_round=google_round,
+        google_hours=max(int(options.get(CONF_GOOGLE_INTERVAL, DEFAULT_GOOGLE_HOURS)), GOOGLE_MIN_HOURS),
+        ryanair_round=weeks * len(options.get(CONF_ORIGINS, ())) if SOURCE_RYANAIR in sources else 0,
+        ryanair_hours=int(options.get(CONF_RYANAIR_INTERVAL, DEFAULT_RYANAIR_HOURS)),
+    )
 
 
 def placeholders(options: Mapping[str, Any]) -> dict[str, str]:
+    """For the texts of the forms: the guide, the limit and what the search makes."""
+    requests = count_requests(options)
     return {
         "guide_url": GUIDE_URL,
-        "count": str(google_requests_per_day(options)),
         "limit": str(GOOGLE_MAX_REQUESTS_PER_DAY),
+        "count": str(requests.google_day),
+        "google_round": str(requests.google_round),
+        "google_day": str(requests.google_day),
+        "google_minutes": str(requests.google_minutes),
+        "google_hours": str(requests.google_hours),
+        "ryanair_round": str(requests.ryanair_round),
+        "ryanair_hours": str(requests.ryanair_hours),
     }
 
 
@@ -186,7 +226,7 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
         if key in user_input:
             options[key] = int(user_input[key])
     # The interval cannot go under GOOGLE_MIN_HOURS: its field does not accept it.
-    if google_requests_per_day(options) > GOOGLE_MAX_REQUESTS_PER_DAY:
+    if count_requests(options).google_day > GOOGLE_MAX_REQUESTS_PER_DAY:
         # Many requests from one address get it a captcha from Google, for the whole home.
         errors.setdefault(CONF_GOOGLE_DESTINATIONS, "google_too_many")
     return options, errors
@@ -211,6 +251,11 @@ class FlightPricesConfigFlow(ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry: FlightPricesConfigEntry) -> FlightPricesOptionsFlow:
         return FlightPricesOptionsFlow()
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._name = ""
+        self._options: dict[str, Any] = {}
+
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         options: dict[str, Any] = {}
@@ -220,30 +265,79 @@ class FlightPricesConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._async_abort_entries_match(
                     {key: options[key] for key in (CONF_ORIGINS, CONF_DESTINATIONS, CONF_OUTBOUND_DAY, CONF_RETURN_DAY)}
                 )
-                return self.async_create_entry(title=user_input[CONF_NAME].strip(), data={}, options=options)
+                self._name, self._options = user_input[CONF_NAME].strip(), options
+                if count_requests(options).google_round:
+                    return self._summary()
+                return await self.async_step_save()
+        suggested = user_input or ({CONF_NAME: self._name, **self._options} if self._options else {})
         return self.async_show_form(
             step_id="user",
-            data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, _suggested(user_input or {})),
+            data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, _suggested(suggested)),
             errors=errors,
             description_placeholders=placeholders(options),
         )
+
+    def _summary(self) -> ConfigFlowResult:
+        """What Google Flights will request, before saving: a form cannot count while it is filled in."""
+        return self.async_show_menu(
+            step_id="summary_high" if count_requests(self._options).high else "summary",
+            menu_options=["save", "change"],
+            description_placeholders=placeholders(self._options),
+        )
+
+    async def async_step_summary(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self._summary()
+
+    async def async_step_summary_high(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self._summary()
+
+    async def async_step_save(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self.async_create_entry(title=self._name, data={}, options=self._options)
+
+    async def async_step_change(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return await self.async_step_user()
 
 
 class FlightPricesOptionsFlow(OptionsFlowWithReload):
     """Change the search; the entry reloads and searches again what changed."""
 
+    def __init__(self) -> None:
+        super().__init__()
+        self._options: dict[str, Any] = {}
+
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
-        options: dict[str, Any] = {}
         if user_input is not None:
             options, errors = validate(user_input)
             if not errors:
-                return self.async_create_entry(data=options)
+                self._options = options
+                if count_requests(options).google_round:
+                    return self._summary()
+                return await self.async_step_save()
+        current = user_input or self._options or self.config_entry.options
         return self.async_show_form(
             step_id="init",
-            data_schema=self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA, _suggested(user_input or self.config_entry.options)
-            ),
+            data_schema=self.add_suggested_values_to_schema(OPTIONS_SCHEMA, _suggested(current)),
             errors=errors,
-            description_placeholders=placeholders(options),
+            # Opening Configure shows what the saved search makes; after an error, what was sent.
+            description_placeholders=placeholders(validate(user_input)[0] if user_input else self.config_entry.options),
         )
+
+    def _summary(self) -> ConfigFlowResult:
+        return self.async_show_menu(
+            step_id="summary_high" if count_requests(self._options).high else "summary",
+            menu_options=["save", "change"],
+            description_placeholders=placeholders(self._options),
+        )
+
+    async def async_step_summary(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self._summary()
+
+    async def async_step_summary_high(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self._summary()
+
+    async def async_step_save(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self.async_create_entry(data=self._options)
+
+    async def async_step_change(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return await self.async_step_init()

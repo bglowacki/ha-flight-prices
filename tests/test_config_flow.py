@@ -92,6 +92,9 @@ async def test_google_requests_in_the_error(hass: HomeAssistant) -> None:
         result["flow_id"],
         {**FORM, "sources": ["google"], "weeks": 12, "google_destinations": destinations, "google_origins": ["MXP"]},
     )
+    assert result["type"] is FlowResultType.MENU
+    assert result["step_id"] == "summary"
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "save"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
 
 
@@ -100,8 +103,44 @@ async def test_google_with_destinations(hass: HomeAssistant) -> None:
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"], {**FORM, "sources": ["google"], "destinations": ["lis", "LON"]}
     )
+    # 8 weeks x 2 destinations x 2 airports x 2 = 64 a round, once a day.
+    assert result["type"] is FlowResultType.MENU
+    assert result["menu_options"] == ["save", "change"]
+    placeholders = result["description_placeholders"]
+    assert (placeholders["google_round"], placeholders["google_day"], placeholders["google_hours"]) == (
+        "64",
+        "64",
+        "24",
+    )
+    assert placeholders["google_minutes"] == "27"
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "save"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["options"]["destinations"] == ["LIS", "LON"]
+
+
+async def test_summary_warns_close_to_the_limit_and_goes_back(hass: HomeAssistant) -> None:
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+    # 8 weeks x 7 destinations x 2 airports x 2 = 224 a day: allowed, but close to the limit.
+    destinations = ["LIS", "PAR", "LON", "AMS", "BCN", "OPO", "BUD"]
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {**FORM, "sources": ["ryanair", "google"], "google_destinations": destinations}
+    )
+    assert result["type"] is FlowResultType.MENU
+    assert result["step_id"] == "summary_high"
+    assert result["description_placeholders"]["google_day"] == "224"
+    # Change the search: the form comes back as it was filled in.
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "change"})
+    assert result["type"] is FlowResultType.FORM
+    schema = {str(key): key.description for key in result["data_schema"].schema}
+    assert schema["google_destinations"]["suggested_value"] == destinations
+    assert schema["name"]["suggested_value"] == "Weekend"
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {**FORM, "sources": ["ryanair", "google"], "google_destinations": ["LIS"]}
+    )
+    assert result["step_id"] == "summary"
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"next_step_id": "save"})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["options"]["google_destinations"] == ["LIS"]
 
 
 async def test_exclude_countries(hass: HomeAssistant) -> None:
@@ -151,8 +190,21 @@ async def test_options_google_limits(hass: HomeAssistant) -> None:
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"google_destinations": "google_too_many"}
     assert result["description_placeholders"]["count"] == "320"
-    # Once a day the same search is 160 requests: accepted.
+    # Once a day the same search is 160 requests: accepted, after the summary.
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {**form, **google, "google_destinations": destinations, "google_interval": 24}
     )
+    assert result["type"] is FlowResultType.MENU
+    assert result["step_id"] == "summary"
+    assert result["description_placeholders"]["google_day"] == "160"
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"next_step_id": "save"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options["google_destinations"] == destinations
+
+
+async def test_configure_shows_the_requests_of_the_saved_search(hass: HomeAssistant) -> None:
+    entry = make_entry(sources=["ryanair", "google"], google_destinations=["LIS", "PAR"], google_origins=["MXP"])
+    entry.add_to_hass(hass)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    # 2 weeks x 2 destinations x 1 airport x 2 = 8 a day.
+    assert result["description_placeholders"]["google_day"] == "8"

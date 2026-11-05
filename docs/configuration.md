@@ -6,6 +6,7 @@ A search has many options, and most of them have a sensible default. This guide 
 - [Where from, where to](#where-from-where-to)
 - [Sources](#sources)
 - [When](#when)
+- [Before saving: the requests](#before-saving-the-requests)
 - [After saving](#after-saving)
 - [Changing a search](#changing-a-search)
 - [How many requests](#how-many-requests)
@@ -62,7 +63,7 @@ Google needs some destinations: in its own list or in the one above. With both s
 >
 > | Limit | Value | Enforced |
 > |---|---|---|
-> | Google requests a day, at most | **300** | yes: the form refuses a search over it and says how many it would make |
+> | Google requests a day, at most | **300** | yes: the form refuses a search over it and says how many it would make; from 200 it saves with a warning |
 > | Google interval, at least | **12 hours** | yes: the field goes no lower |
 > | Google interval, recommended | **24 hours**, the default | |
 > | Pause between two requests | 20 to 30 seconds | yes, not an option |
@@ -91,6 +92,18 @@ The requests of a setting are counted in [How many requests](#how-many-requests)
 
 **Direct flights only**: for Google Flights, which can also find flights with stops. Ryanair always flies direct.
 
+## Before saving: the requests
+
+There is nothing to count by hand. With Google Flights among the sources, **Submit** does not save yet: it shows how many requests the search makes, then **Save** or **Change the search** (back to the form, as you filled it in). A form in Home Assistant cannot count while it is being filled in, so the numbers come after Submit.
+
+![The summary before saving, with the warning of a search close to the limit](images/summary.png)
+
+- **Up to 200 Google requests a day**: just the numbers.
+- **200 to 300**: the numbers and a warning that the search is close to the limit. It can be saved; make it smaller unless you need all of it.
+- **Over 300**: the form refuses it and says how many it would make (see [Sources](#sources)).
+
+With Ryanair only there is no summary: one request per airport and week is nothing to worry about.
+
 ## After saving
 
 - **Ryanair** searches at once, in a few seconds: the week sensors have values right away.
@@ -103,7 +116,11 @@ Each week sensor has the cheapest price as its state and up to 30 trips in its a
 
 ## Changing a search
 
-Everything but the name can be changed from **Settings → Devices & services → Flight Prices → Configure**. The form is the same, with two more options at the bottom:
+Everything but the name can be changed from **Settings → Devices & services → Flight Prices → Configure**. At the top it says how many Google requests a day the saved search makes:
+
+![The top of Configure, with the requests of the saved search](images/configure-requests.png)
+
+The form is the same as for a new search, with the same summary before saving, and two more options at the bottom:
 
 ![The intervals, at the bottom of Configure](images/options-intervals.png)
 
@@ -119,15 +136,15 @@ After saving, the search reloads. A source searches again **only if what it sear
 | Ryanair | departure airports × weeks | about a second each |
 | Google Flights | weeks × Google destinations × Google departure airports × 2 | 20 to 30 seconds each |
 
-Google searches the return only when the outbound found something, so real rounds are often shorter; the limit counts the most a round can make. **Google requests a day** are the requests of a round × 24 / the interval in hours, and must stay within **300**. Some examples with 8 weeks:
+The [summary before saving](#before-saving-the-requests) does this count for you; the table is for planning. Google searches the return only when the outbound found something, so real rounds are often shorter; the limit counts the most a round can make. **Google requests a day** are the requests of a round × 24 / the interval in hours: ✅ saved, ⚠️ saved with a warning (200 to 300), ❌ refused (over 300). Some examples with 8 weeks:
 
 | Google setup | Requests a round | Round | Once a day (24 h) | Twice a day (12 h) |
 |---|---|---|---|---|
 | 3 destinations, 1 airport | up to 48 | about 20 minutes | ✅ 48 | ✅ 96 |
 | 5 destinations, 1 airport | up to 80 | about 35 minutes | ✅ 80 | ✅ 160 |
-| 14 destinations, 1 airport | up to 224 | about an hour and a half | ✅ 224 | ❌ 448 |
-| 10 destinations, 2 airports | up to 320 | about two hours and a quarter | ❌ 320 (✅ every 36 h: 214) | ❌ 640 |
-| 14 destinations, 2 airports | up to 448 | about three hours | ❌ 448 (✅ every 48 h: 224) | ❌ 896 |
+| 14 destinations, 1 airport | up to 224 | about an hour and a half | ⚠️ 224 | ❌ 448 |
+| 10 destinations, 2 airports | up to 320 | about two hours and a quarter | ❌ 320 (⚠️ every 36 h: 214) | ❌ 640 |
+| 14 destinations, 2 airports | up to 448 | about three hours | ❌ 448 (⚠️ every 48 h: 224) | ❌ 896 |
 
 With 12 weeks instead of 8 every figure grows by half. When the form refuses a search, it says how many requests it would make: take out destinations, a Google departure airport or some weeks, or lengthen the interval.
 

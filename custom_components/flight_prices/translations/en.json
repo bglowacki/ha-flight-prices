@@ -34,6 +34,22 @@
           "return_to": "24 is midnight.",
           "direct_only": "Google Flights only: Ryanair always flies direct."
         }
+      },
+      "summary": {
+        "title": "Google Flights requests",
+        "description": "This search makes up to **{google_round} requests** to Google Flights a round, about {google_minutes} minutes, every {google_hours} hours: up to **{google_day} a day**, out of a limit of {limit}. It is the most it can make: the return is not searched when the outbound found nothing.\n\nRyanair, if chosen, makes one request per airport and week.",
+        "menu_options": {
+          "save": "Save",
+          "change": "Change the search"
+        }
+      },
+      "summary_high": {
+        "title": "Google Flights requests",
+        "description": "This search makes up to **{google_round} requests** to Google Flights a round, about {google_minutes} minutes, every {google_hours} hours: up to **{google_day} a day**, out of a limit of {limit}. It is the most it can make: the return is not searched when the outbound found nothing.\n\nRyanair, if chosen, makes one request per airport and week.\n\n⚠️ **Close to the limit.** Too many automatic searches get your whole home connection a captcha from Google. Unless you need them all, use fewer Google destinations, departure airports or weeks, or a longer interval.",
+        "menu_options": {
+          "save": "Save",
+          "change": "Change the search"
+        }
       }
     },
     "error": {
@@ -53,7 +69,7 @@
     "step": {
       "init": {
         "title": "Change the search",
-        "description": "Changes apply at once: a source searches again only when what it searches has changed (more weeks included). The [configuration guide]({guide_url}) explains every option.",
+        "description": "Changes apply at once: a source searches again only when what it searches has changed (more weeks included). The [configuration guide]({guide_url}) explains every option. This search now makes up to {google_day} Google Flights requests a day, out of a limit of {limit}.",
         "data": {
           "origins": "Departure airports",
           "destinations": "Destinations",
@@ -85,6 +101,22 @@
           "direct_only": "Google Flights only: Ryanair always flies direct.",
           "ryanair_interval": "Hours between two searches.",
           "google_interval": "Hours between two searches, at least 12; 24 is recommended. One search reads every week, destination and airport, outbound and return. Searching more often brings little, since fares weeks ahead change slowly, and risks a block from Google for your whole home connection."
+        }
+      },
+      "summary": {
+        "title": "Google Flights requests",
+        "description": "This search makes up to **{google_round} requests** to Google Flights a round, about {google_minutes} minutes, every {google_hours} hours: up to **{google_day} a day**, out of a limit of {limit}. It is the most it can make: the return is not searched when the outbound found nothing.\n\nRyanair, if chosen, makes one request per airport and week.",
+        "menu_options": {
+          "save": "Save",
+          "change": "Change the search"
+        }
+      },
+      "summary_high": {
+        "title": "Google Flights requests",
+        "description": "This search makes up to **{google_round} requests** to Google Flights a round, about {google_minutes} minutes, every {google_hours} hours: up to **{google_day} a day**, out of a limit of {limit}. It is the most it can make: the return is not searched when the outbound found nothing.\n\nRyanair, if chosen, makes one request per airport and week.\n\n⚠️ **Close to the limit.** Too many automatic searches get your whole home connection a captcha from Google. Unless you need them all, use fewer Google destinations, departure airports or weeks, or a longer interval.",
+        "menu_options": {
+          "save": "Save",
+          "change": "Change the search"
         }
       }
     },

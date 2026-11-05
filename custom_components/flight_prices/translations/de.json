@@ -34,6 +34,22 @@
           "return_to": "24 ist Mitternacht.",
           "direct_only": "Nur für Google Flights: Ryanair fliegt immer direkt."
         }
+      },
+      "summary": {
+        "title": "Anfragen an Google Flights",
+        "description": "Diese Suche stellt pro Durchlauf bis zu **{google_round} Anfragen** an Google Flights, etwa {google_minutes} Minuten, alle {google_hours} Stunden: bis zu **{google_day} pro Tag**, bei einer Grenze von {limit}. Das ist das Maximum: Der Rückflug wird nicht gesucht, wenn der Hinflug nichts gefunden hat.\n\nRyanair stellt, falls gewählt, eine Anfrage pro Flughafen und Woche.",
+        "menu_options": {
+          "save": "Speichern",
+          "change": "Suche ändern"
+        }
+      },
+      "summary_high": {
+        "title": "Anfragen an Google Flights",
+        "description": "Diese Suche stellt pro Durchlauf bis zu **{google_round} Anfragen** an Google Flights, etwa {google_minutes} Minuten, alle {google_hours} Stunden: bis zu **{google_day} pro Tag**, bei einer Grenze von {limit}. Das ist das Maximum: Der Rückflug wird nicht gesucht, wenn der Hinflug nichts gefunden hat.\n\nRyanair stellt, falls gewählt, eine Anfrage pro Flughafen und Woche.\n\n⚠️ **Nahe an der Grenze.** Bei zu vielen automatischen Suchen zeigt Google deinem ganzen Heimanschluss ein Captcha. Wenn du nicht alle brauchst, verwende weniger Google-Ziele, Abflughäfen oder Wochen oder ein längeres Intervall.",
+        "menu_options": {
+          "save": "Speichern",
+          "change": "Suche ändern"
+        }
       }
     },
     "error": {
@@ -53,7 +69,7 @@
     "step": {
       "init": {
         "title": "Suche ändern",
-        "description": "Änderungen gelten sofort: Eine Quelle sucht nur dann neu, wenn sich ändert, was sie sucht (auch bei mehr Wochen). Die [Konfigurationsanleitung]({guide_url}) (auf Englisch) erklärt jede Option.",
+        "description": "Änderungen gelten sofort: Eine Quelle sucht nur dann neu, wenn sich ändert, was sie sucht (auch bei mehr Wochen). Die [Konfigurationsanleitung]({guide_url}) (auf Englisch) erklärt jede Option. Diese Suche stellt derzeit bis zu {google_day} Anfragen pro Tag an Google Flights, bei einer Grenze von {limit}.",
         "data": {
           "origins": "Abflughäfen",
           "destinations": "Ziele",
@@ -85,6 +101,22 @@
           "direct_only": "Nur für Google Flights: Ryanair fliegt immer direkt.",
           "ryanair_interval": "Stunden zwischen zwei Suchen.",
           "google_interval": "Stunden zwischen zwei Suchen, mindestens 12; empfohlen sind 24. Eine Suche liest jede Woche, jedes Ziel und jeden Flughafen, Hin- und Rückflug. Häufigeres Suchen bringt wenig, weil sich Preise einige Wochen im Voraus langsam ändern, und riskiert eine Sperre durch Google für deinen ganzen Heimanschluss."
+        }
+      },
+      "summary": {
+        "title": "Anfragen an Google Flights",
+        "description": "Diese Suche stellt pro Durchlauf bis zu **{google_round} Anfragen** an Google Flights, etwa {google_minutes} Minuten, alle {google_hours} Stunden: bis zu **{google_day} pro Tag**, bei einer Grenze von {limit}. Das ist das Maximum: Der Rückflug wird nicht gesucht, wenn der Hinflug nichts gefunden hat.\n\nRyanair stellt, falls gewählt, eine Anfrage pro Flughafen und Woche.",
+        "menu_options": {
+          "save": "Speichern",
+          "change": "Suche ändern"
+        }
+      },
+      "summary_high": {
+        "title": "Anfragen an Google Flights",
+        "description": "Diese Suche stellt pro Durchlauf bis zu **{google_round} Anfragen** an Google Flights, etwa {google_minutes} Minuten, alle {google_hours} Stunden: bis zu **{google_day} pro Tag**, bei einer Grenze von {limit}. Das ist das Maximum: Der Rückflug wird nicht gesucht, wenn der Hinflug nichts gefunden hat.\n\nRyanair stellt, falls gewählt, eine Anfrage pro Flughafen und Woche.\n\n⚠️ **Nahe an der Grenze.** Bei zu vielen automatischen Suchen zeigt Google deinem ganzen Heimanschluss ein Captcha. Wenn du nicht alle brauchst, verwende weniger Google-Ziele, Abflughäfen oder Wochen oder ein längeres Intervall.",
+        "menu_options": {
+          "save": "Speichern",
+          "change": "Suche ändern"
         }
       }
     },

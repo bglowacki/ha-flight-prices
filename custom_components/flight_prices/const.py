@@ -51,6 +51,8 @@ DEFAULT_GOOGLE_HOURS: Final = 24
 # requests a day, 20 to 30 seconds apart) and well below anything aggressive.
 GOOGLE_MIN_HOURS: Final = 12
 GOOGLE_MAX_REQUESTS_PER_DAY: Final = 300
+# From here the summary before saving warns that the search is close to the limit.
+GOOGLE_HIGH_REQUESTS_PER_DAY: Final = 200
 
 # How often the coordinator checks whether a source is due.
 TICK: Final = timedelta(minutes=15)

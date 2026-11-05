@@ -34,6 +34,22 @@
           "return_to": "24 è mezzanotte.",
           "direct_only": "Solo per Google Flights: Ryanair vola sempre diretto."
         }
+      },
+      "summary": {
+        "title": "Richieste a Google Flights",
+        "description": "Questa ricerca fa fino a **{google_round} richieste** a Google Flights a giro, circa {google_minutes} minuti, ogni {google_hours} ore: fino a **{google_day} al giorno**, su un limite di {limit}. È il massimo possibile: il ritorno non si cerca se l'andata non ha trovato niente.\n\nRyanair, se scelto, fa una richiesta per aeroporto e settimana.",
+        "menu_options": {
+          "save": "Salva",
+          "change": "Modifica la ricerca"
+        }
+      },
+      "summary_high": {
+        "title": "Richieste a Google Flights",
+        "description": "Questa ricerca fa fino a **{google_round} richieste** a Google Flights a giro, circa {google_minutes} minuti, ogni {google_hours} ore: fino a **{google_day} al giorno**, su un limite di {limit}. È il massimo possibile: il ritorno non si cerca se l'andata non ha trovato niente.\n\nRyanair, se scelto, fa una richiesta per aeroporto e settimana.\n\n⚠️ **Vicino al limite.** Con troppe ricerche automatiche Google mostra un captcha a tutta la connessione di casa. Se non ti servono tutte, usa meno destinazioni, aeroporti di partenza o settimane per Google, o un intervallo più lungo.",
+        "menu_options": {
+          "save": "Salva",
+          "change": "Modifica la ricerca"
+        }
       }
     },
     "error": {
@@ -53,7 +69,7 @@
     "step": {
       "init": {
         "title": "Modifica la ricerca",
-        "description": "Le modifiche valgono subito: una fonte ripete la ricerca solo se cambia ciò che cerca (anche con più settimane). La [guida alla configurazione]({guide_url}) (in inglese) spiega ogni opzione.",
+        "description": "Le modifiche valgono subito: una fonte ripete la ricerca solo se cambia ciò che cerca (anche con più settimane). La [guida alla configurazione]({guide_url}) (in inglese) spiega ogni opzione. Oggi questa ricerca fa fino a {google_day} richieste al giorno a Google Flights, su un limite di {limit}.",
         "data": {
           "origins": "Aeroporti di partenza",
           "destinations": "Destinazioni",
@@ -85,6 +101,22 @@
           "direct_only": "Solo per Google Flights: Ryanair vola sempre diretto.",
           "ryanair_interval": "Ore tra due ricerche.",
           "google_interval": "Ore tra due ricerche, almeno 12; consigliate 24. Una ricerca legge ogni settimana, destinazione e aeroporto, andata e ritorno. Cercare più spesso serve a poco, perché le tariffe di qualche settimana dopo cambiano lentamente, e rischia un blocco da Google per tutta la connessione di casa."
+        }
+      },
+      "summary": {
+        "title": "Richieste a Google Flights",
+        "description": "Questa ricerca fa fino a **{google_round} richieste** a Google Flights a giro, circa {google_minutes} minuti, ogni {google_hours} ore: fino a **{google_day} al giorno**, su un limite di {limit}. È il massimo possibile: il ritorno non si cerca se l'andata non ha trovato niente.\n\nRyanair, se scelto, fa una richiesta per aeroporto e settimana.",
+        "menu_options": {
+          "save": "Salva",
+          "change": "Modifica la ricerca"
+        }
+      },
+      "summary_high": {
+        "title": "Richieste a Google Flights",
+        "description": "Questa ricerca fa fino a **{google_round} richieste** a Google Flights a giro, circa {google_minutes} minuti, ogni {google_hours} ore: fino a **{google_day} al giorno**, su un limite di {limit}. È il massimo possibile: il ritorno non si cerca se l'andata non ha trovato niente.\n\nRyanair, se scelto, fa una richiesta per aeroporto e settimana.\n\n⚠️ **Vicino al limite.** Con troppe ricerche automatiche Google mostra un captcha a tutta la connessione di casa. Se non ti servono tutte, usa meno destinazioni, aeroporti di partenza o settimane per Google, o un intervallo più lungo.",
+        "menu_options": {
+          "save": "Salva",
+          "change": "Modifica la ricerca"
         }
       }
     },
