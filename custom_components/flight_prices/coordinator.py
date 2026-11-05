@@ -111,6 +111,9 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
         state = self.states[source]
         if state.last_attempt is None:
             return True
+        # Weeks added in the options: searched now, not at the next interval.
+        if state.weeks is not None and state.weeks < self.params.weeks:
+            return True
         since = now - state.last_attempt
         if since >= self.intervals[source]:
             return True
@@ -121,6 +124,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
         assert self.ryanair is not None
         state = self.states[SOURCE_RYANAIR]
         state.last_attempt = now
+        state.weeks = len(weeks)
         found: list[Trip] = []
         searched: set[tuple[str, str]] = set()
         error: str | None = None
@@ -164,6 +168,7 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
         google = self.google
         state = self.states[SOURCE_GOOGLE]
         state.last_attempt = dt_util.utcnow()
+        state.weeks = len(weeks)
         params = self.params
         requests = errors = 0
         error: str | None = None

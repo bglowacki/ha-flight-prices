@@ -740,10 +740,12 @@ class FlightPricesCardEditor extends HTMLElement {
       this.appendChild(this._form);
     }
     this._form.hass = this._hass;
-    this._form.data = { per_week: ROUNDS_DEFAULT, unique: true, ...this._config };
+    const options = searchOptions(this._hass);
+    // Without a search in the configuration the card shows the first one: the menu says which.
+    this._form.data = { per_week: ROUNDS_DEFAULT, unique: true, device_id: options[0]?.value, ...this._config };
     this._form.schema = [
       // The device selector with an integration filter waits on data the editor may not have: a plain list.
-      { name: "device_id", selector: { select: { mode: "dropdown", options: searchOptions(this._hass) } } },
+      { name: "device_id", selector: { select: { mode: "dropdown", options } } },
       { name: "title", selector: { text: {} } },
       { name: "per_week", selector: { number: { min: 1, max: 10, mode: "box" } } },
       { name: "unique", selector: { boolean: {} } },

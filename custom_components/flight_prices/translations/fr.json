@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Nouvelle recherche de vols",
-        "description": "Des allers-retours chaque semaine : aller un jour, retour un autre, dans les plages horaires de votre choix. Les prix sont pour un adulte.",
+        "description": "Des allers-retours chaque semaine : aller un jour, retour un autre, dans les plages horaires de votre choix. Les prix sont pour un adulte. Le [guide de configuration]({guide_url}) (en anglais) explique chaque option, avec des exemples.",
         "data": {
           "name": "Nom",
           "origins": "Aéroports de départ",
@@ -52,6 +52,7 @@
     "step": {
       "init": {
         "title": "Modifier la recherche",
+        "description": "Les modifications s'appliquent tout de suite : une source ne relance sa recherche que si ce qu'elle cherche change (y compris avec plus de semaines). Le [guide de configuration]({guide_url}) (en anglais) explique chaque option.",
         "data": {
           "origins": "Aéroports de départ",
           "destinations": "Destinations",

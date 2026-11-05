@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Nuova ricerca di voli",
-        "description": "Viaggi di andata e ritorno ogni settimana: andata in un giorno, ritorno in un altro, nelle fasce orarie che scegli. I prezzi sono per un adulto.",
+        "description": "Viaggi di andata e ritorno ogni settimana: andata in un giorno, ritorno in un altro, nelle fasce orarie che scegli. I prezzi sono per un adulto. La [guida alla configurazione]({guide_url}) (in inglese) spiega ogni opzione, con degli esempi.",
         "data": {
           "name": "Nome",
           "origins": "Aeroporti di partenza",
@@ -52,6 +52,7 @@
     "step": {
       "init": {
         "title": "Modifica la ricerca",
+        "description": "Le modifiche valgono subito: una fonte ripete la ricerca solo se cambia ciò che cerca (anche con più settimane). La [guida alla configurazione]({guide_url}) (in inglese) spiega ogni opzione.",
         "data": {
           "origins": "Aeroporti di partenza",
           "destinations": "Destinazioni",

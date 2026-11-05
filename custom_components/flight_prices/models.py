@@ -294,10 +294,13 @@ class SourceState:
     last_success: datetime | None = None
     error: str | None = None
     trips: list[Trip] = field(default_factory=list)
+    # How many weeks the last search covered: with more weeks in the options it searches again.
+    weeks: int | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
             "fingerprint": self.fingerprint,
+            "weeks": self.weeks,
             "last_attempt": self.last_attempt.isoformat() if self.last_attempt else None,
             "last_success": self.last_success.isoformat() if self.last_success else None,
             "error": self.error,
@@ -312,6 +315,7 @@ class SourceState:
             last_success=datetime.fromisoformat(data["last_success"]) if data.get("last_success") else None,
             error=data.get("error"),
             trips=[Trip.from_dict(trip) for trip in data.get("trips", ())],
+            weeks=data.get("weeks"),
         )
 
 

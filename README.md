@@ -64,7 +64,7 @@ The Google search runs in the background. Its round stops at the first block (co
 
 With HACS: add this repository as a custom repository (category Integration), install **Flight Prices** and restart Home Assistant. By hand: copy `custom_components/flight_prices` into your `config/custom_components` and restart.
 
-Then add the integration in **Settings → Devices & services**. The options can be changed later from the integration's **Configure** button.
+Then add the integration in **Settings → Devices & services**. The options can be changed later from the integration's **Configure** button. The **[configuration guide](https://github.com/flaviorighi/ha-flight-prices/blob/main/docs/configuration.md)** explains each option, with images and ready-made setups.
 
 | Option | What it is | Default |
 |---|---|---|

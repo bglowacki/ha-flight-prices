@@ -126,6 +126,23 @@ async def test_changed_search_searches_again(hass: HomeAssistant, aioclient_mock
     assert aioclient_mock.call_count == 8
 
 
+async def test_more_weeks_search_at_once(hass: HomeAssistant, aioclient_mock: Any) -> None:
+    aioclient_mock.get(RYANAIR_URL, json=ryanair_payload())
+    entry = await _setup(hass)
+    assert aioclient_mock.call_count == 4
+    # Fewer weeks: what was found is enough.
+    hass.config_entries.async_update_entry(entry, options={**entry.options, "weeks": 1})
+    await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert aioclient_mock.call_count == 4
+    # More weeks than the last search covered: two airports, three weeks, at once.
+    hass.config_entries.async_update_entry(entry, options={**entry.options, "weeks": 3})
+    await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert aioclient_mock.call_count == 10
+    assert hass.states.get("sensor.weekend_week_3") is not None
+
+
 async def test_ryanair_failure_keeps_old_trips(hass: HomeAssistant, aioclient_mock: Any, frozen) -> None:
     aioclient_mock.get(RYANAIR_URL, json=ryanair_payload())
     await _setup(hass)

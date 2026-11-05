@@ -51,6 +51,7 @@ from .const import (
     DEFAULT_RYANAIR_HOURS,
     DEFAULT_WEEKS,
     DOMAIN,
+    GUIDE_URL,
     MAX_WEEKS,
     SOURCE_GOOGLE,
     SOURCE_RYANAIR,
@@ -198,6 +199,7 @@ class FlightPricesConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, _suggested(user_input or {})),
             errors=errors,
+            description_placeholders={"guide_url": GUIDE_URL},
         )
 
 
@@ -216,4 +218,5 @@ class FlightPricesOptionsFlow(OptionsFlowWithReload):
                 OPTIONS_SCHEMA, _suggested(user_input or self.config_entry.options)
             ),
             errors=errors,
+            description_placeholders={"guide_url": GUIDE_URL},
         )

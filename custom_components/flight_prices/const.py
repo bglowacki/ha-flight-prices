@@ -6,6 +6,8 @@ from datetime import timedelta
 from typing import Final
 
 DOMAIN: Final = "flight_prices"
+# Linked from the setup and options forms.
+GUIDE_URL: Final = "https://github.com/flaviorighi/ha-flight-prices/blob/main/docs/configuration.md"
 
 CONF_ORIGINS: Final = "origins"
 # Empty means anywhere: every destination the sources fly to.

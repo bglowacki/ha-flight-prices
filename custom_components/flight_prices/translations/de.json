@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Neue Flugsuche",
-        "description": "Hin- und Rückflüge für jede Woche: Hinflug an einem Tag, Rückflug an einem anderen, in den Zeitfenstern deiner Wahl. Die Preise gelten für einen Erwachsenen.",
+        "description": "Hin- und Rückflüge für jede Woche: Hinflug an einem Tag, Rückflug an einem anderen, in den Zeitfenstern deiner Wahl. Die Preise gelten für einen Erwachsenen. Die [Konfigurationsanleitung]({guide_url}) (auf Englisch) erklärt jede Option mit Beispielen.",
         "data": {
           "name": "Name",
           "origins": "Abflughäfen",
@@ -52,6 +52,7 @@
     "step": {
       "init": {
         "title": "Suche ändern",
+        "description": "Änderungen gelten sofort: Eine Quelle sucht nur dann neu, wenn sich ändert, was sie sucht (auch bei mehr Wochen). Die [Konfigurationsanleitung]({guide_url}) (auf Englisch) erklärt jede Option.",
         "data": {
           "origins": "Abflughäfen",
           "destinations": "Ziele",

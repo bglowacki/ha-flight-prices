@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Nueva búsqueda de vuelos",
-        "description": "Viajes de ida y vuelta cada semana: ida un día, vuelta otro, en las franjas horarias que elijas. Los precios son para un adulto.",
+        "description": "Viajes de ida y vuelta cada semana: ida un día, vuelta otro, en las franjas horarias que elijas. Los precios son para un adulto. La [guía de configuración]({guide_url}) (en inglés) explica cada opción, con ejemplos.",
         "data": {
           "name": "Nombre",
           "origins": "Aeropuertos de salida",
@@ -52,6 +52,7 @@
     "step": {
       "init": {
         "title": "Modificar la búsqueda",
+        "description": "Los cambios se aplican al momento: una fuente vuelve a buscar solo si cambia lo que busca (también con más semanas). La [guía de configuración]({guide_url}) (en inglés) explica cada opción.",
         "data": {
           "origins": "Aeropuertos de salida",
           "destinations": "Destinos",

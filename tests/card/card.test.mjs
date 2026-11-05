@@ -225,6 +225,21 @@ describe("the search", () => {
     assert.equal(readSearch({ states: {}, entities: {} }), null);
   });
 
+  test("the editor shows the search the card uses", () => {
+    const Editor = defined.get("flight-prices-card-editor");
+    const editor = new Editor();
+    const forms = [];
+    globalThis.document = { createElement: () => { const form = { addEventListener() {} }; forms.push(form); return form; } };
+    try {
+      editor.hass = makeHass({ weeks: WEEKS });
+      editor.setConfig({ type: "custom:flight-prices-card" });
+      assert.equal(forms[0].data.device_id, DEVICE);
+      assert.deepEqual(forms[0].schema[0].selector.select.options, [{ value: DEVICE, label: "Weekend da Milano" }]);
+    } finally {
+      delete globalThis.document;
+    }
+  });
+
   test("the editor lists the searches", () => {
     assert.deepEqual(searchOptions(makeHass({ weeks: WEEKS })), [{ value: DEVICE, label: "Weekend da Milano" }]);
     assert.deepEqual(FlightPricesCard.getStubConfig(makeHass({ weeks: WEEKS })), { device_id: DEVICE });

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "New flight search",
-        "description": "Return trips every week: out on one day, back on another, within the hours you choose. Prices are for one adult.",
+        "description": "Return trips every week: out on one day, back on another, within the hours you choose. Prices are for one adult. The [configuration guide]({guide_url}) explains every option, with examples.",
         "data": {
           "name": "Name",
           "origins": "Departure airports",
@@ -52,6 +52,7 @@
     "step": {
       "init": {
         "title": "Change the search",
+        "description": "Changes apply at once: a source searches again only when what it searches has changed (more weeks included). The [configuration guide]({guide_url}) explains every option.",
         "data": {
           "origins": "Departure airports",
           "destinations": "Destinations",
