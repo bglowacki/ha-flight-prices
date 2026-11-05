@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 from datetime import date, datetime
 import json
 from typing import Any
@@ -12,7 +13,7 @@ from yarl import URL
 
 from custom_components.flight_prices.models import Hours
 from custom_components.flight_prices.sources import SourceBlocked, SourceError
-from custom_components.flight_prices.sources.google import GoogleSource, city_from_airport, parse_page
+from custom_components.flight_prices.sources.google import GoogleSource, Place, city_from_airport, parse_page
 from custom_components.flight_prices.sources.ryanair import URL as RYANAIR_URL, RyanairSource
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -89,8 +90,18 @@ def item(segments: list[list], price: int | None, airlines: list[str]) -> list:
     return [info, [[None, price], "token"]]
 
 
-def page(best: list | None, other: list | None) -> str:
+# The places of a search as Google sends them, pictures left out: origins, then destinations.
+PLACES = [
+    [
+        [[["MXP", 0], "Aeroporto di Milano Malpensa", ["/m/0947l", "Milano"], [45.63, 8.72], "IT", 0, "Italia"]],
+        [[["/m/05qtj", 4], "Parigi", ["/m/05qtj", "Parigi", "Torre Eiffel"], [48.86, 2.35], "fr", None, "Francia"]],
+    ]
+]
+
+
+def page(best: list | None, other: list | None, places: list | None = None) -> str:
     payload: list[Any] = [None] * 31
+    payload[1] = places
     payload[2] = [best] if best else None
     payload[3] = [other] if other else None
     script = f"AF_initDataCallback({{key: 'ds:1', hash: '1', data:{json.dumps(payload)}, sideChannel: {{}}}});"
@@ -146,6 +157,15 @@ def test_city_from_airport(airport: str | None, city: str | None) -> None:
     assert city_from_airport(airport) == city
 
 
+def test_parse_page_reads_the_place() -> None:
+    flight = item([segment("MXP", "CDG", DAY, [20], [22], "U2", "1")], 64, ["easyJet"])
+    flights = parse_page(page(None, [flight], PLACES))
+    assert flights[0].place == Place(city="Parigi", country="Francia", country_code="FR")
+    # A page without places still gives its flights.
+    assert parse_page(PAGE)[0].place is None
+    assert parse_page(page(None, None, [[[], [["?"]]]])) == []
+
+
 def test_parse_page_without_flights() -> None:
     assert parse_page(page(None, None)) == []
     with pytest.raises(SourceBlocked):
@@ -182,7 +202,30 @@ def test_google_refusals(status: int, location: str, error: type[Exception]) -> 
     assert "SOCS=" in client.return_value.get.call_args.kwargs["headers"]["cookie"]
 
 
+def _search(link: str) -> bytes:
+    tfs = link.split("tfs=")[1].split("&")[0]
+    return base64.urlsafe_b64decode(tfs + "=" * (-len(tfs) % 4))
+
+
 def test_google_link() -> None:
-    link = GoogleSource("EUR", "it-IT").link("MXP", "LIS", OUT, BACK)
+    source = GoogleSource("EUR", "it-IT")
+    there, back = (OUT, "MXP", "LIS", EVENING), (BACK, "LIS", "MXP", AFTERNOON)
+    link = source.link([there, back], True)
     assert link.startswith("https://www.google.com/travel/flights/search?tfs=")
     assert link.endswith("&hl=it&curr=EUR")
+    both = _search(link)
+    assert b"2026-11-06" in both
+    assert b"2026-11-08" in both
+    # One leg is a one-way search.
+    one = _search(source.link([there], True))
+    assert b"2026-11-06" in one
+    assert b"2026-11-08" not in one
+    # The hours and the stops go into the search, as in the searches that found the trip.
+    assert _search(source.link([(OUT, "MXP", "LIS", Hours(0, 24))], True)) != one
+    assert _search(source.link([there], False)) != one
+    with patch("custom_components.flight_prices.sources.google.create_query") as create:
+        source.link([there, back], True)
+    kwargs = create.call_args.kwargs
+    assert kwargs["trip"] == "round-trip"
+    assert kwargs["max_stops"] == 0
+    assert [(f.earliest_departure_hour, f.latest_departure_hour) for f in kwargs["flights"]] == [(19, None), (14, None)]

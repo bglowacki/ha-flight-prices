@@ -224,19 +224,36 @@ class FlightPricesCoordinator(DataUpdateCoordinator[FlightData]):
 
     def _google_trip(self, destination: str, out: Any, back: Any, week: Week) -> Trip:
         assert self.google is not None
+        place = out.place
+        if place and place.country_code and destination not in self.names:
+            # Also names the trips saved before Google described its places.
+            self.names[destination] = [place.city, place.country, place.country_code]
         city, country, code = [*self.names.get(destination, []), None, None, None][:3]
+        params = self.params
+        origin = out.leg.origin
+        there = (week.outbound, origin, destination, params.outbound_hours)
+        back_home = (week.inbound, destination, origin, params.return_hours)
+        if out.leg.airline == back.leg.airline:
+            # One airline sells the return trip, often for less than two one-way tickets.
+            link = self.google.link([there, back_home], params.direct_only)
+            return_link = None
+        else:
+            # Two airlines are two tickets: a return search would not show this pair.
+            link = self.google.link([there], params.direct_only)
+            return_link = self.google.link([back_home], params.direct_only)
         return Trip(
             source=SOURCE_GOOGLE,
             destination=destination,
-            # Ryanair's city name when it flies there too, else the one in Google's airport name.
-            city=city or city_from_airport(out.destination_name),
-            country=country,
+            # Google's own place, else Ryanair's names, else the city in Google's airport name.
+            city=(place and place.city) or city or city_from_airport(out.destination_name),
+            country=(place and place.country) or country,
             price=round(out.price + back.price, 2),
             currency=self.hass.config.currency,
             outbound=out.leg,
             inbound=back.leg,
-            link=self.google.link(out.leg.origin, destination, week.outbound, week.inbound),
-            country_code=code,
+            link=link,
+            country_code=(place and place.country_code) or code,
+            return_link=return_link,
         )
 
     def _assemble(self, weeks: list[Week]) -> FlightData:

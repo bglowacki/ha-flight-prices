@@ -13,7 +13,7 @@ from pytest_homeassistant_custom_component.common import async_fire_time_changed
 
 from custom_components.flight_prices.models import Hours, Leg
 from custom_components.flight_prices.sources import SourceBlocked, SourceError
-from custom_components.flight_prices.sources.google import GoogleFlight
+from custom_components.flight_prices.sources.google import GoogleFlight, Place
 from custom_components.flight_prices.sources.ryanair import URL as RYANAIR_URL
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
@@ -157,7 +157,16 @@ async def test_fewer_weeks_remove_entities(hass: HomeAssistant, aioclient_mock: 
     assert registry.async_get_entity_id("sensor", "flight_prices", f"{entry.entry_id}_week_1") is not None
 
 
-def _flight(origin: str, destination: str, day: date, hour: int, price: float, number: str) -> GoogleFlight:
+def _flight(
+    origin: str,
+    destination: str,
+    day: date,
+    hour: int,
+    price: float,
+    number: str,
+    airline: str = "easyJet",
+    place: Place | None = None,
+) -> GoogleFlight:
     departure = datetime(day.year, day.month, day.day, hour, 0)
     return GoogleFlight(
         Leg(
@@ -166,9 +175,10 @@ def _flight(origin: str, destination: str, day: date, hour: int, price: float, n
             departure=departure,
             arrival=departure + timedelta(hours=2),
             flight_numbers=(number,),
-            airline="easyJet",
+            airline=airline,
         ),
         price,
+        place=place,
     )
 
 
@@ -260,6 +270,31 @@ async def test_google_takes_names_from_ryanair(hass: HomeAssistant, aioclient_mo
         ("WWA", "BGY", "Varsavia", "PL", "google"),
     ]
     assert hass.states.get("sensor.weekend_pmo").attributes["city"] == "Palermo"
+
+
+async def test_google_two_airlines_two_tickets(hass: HomeAssistant) -> None:
+    def search(day: date, origin: str, destination: str, hours: Hours, direct_only: bool) -> list[GoogleFlight]:
+        if day.weekday() == 4:
+            return [_flight(origin, destination, day, 20, 40, "FR1", "Ryanair", Place("Londra", "Regno Unito", "GB"))]
+        # Back with another airline in the first week, with the same one in the second.
+        airline = "Wizz Air" if day.day == 8 else "Ryanair"
+        return [_flight(origin, destination, day, 18, 60, "W1", airline, Place("Milano", "Italia", "IT"))]
+
+    def link(legs: list[tuple], direct_only: bool) -> str:
+        return " ".join(f"{day.day}:{origin}-{destination}" for day, origin, destination, _hours in legs)
+
+    with (
+        patch("custom_components.flight_prices.sources.google.GoogleSource.search", side_effect=search),
+        patch("custom_components.flight_prices.sources.google.GoogleSource.link", side_effect=link),
+    ):
+        await _setup(hass, sources=["google"], origins=["MXP"], destinations=["LON"], exclude_countries=["IT"])
+        await hass.async_block_till_done(wait_background_tasks=True)
+    first = hass.states.get("sensor.weekend_week_1").attributes["trips"][0]
+    assert (first["link"], first["return_link"]) == ("6:MXP-LON", "8:LON-MXP")
+    # City and country from Google's page, so the countries left out apply to Google's trips too.
+    assert (first["city"], first["country"], first["country_code"]) == ("Londra", "Regno Unito", "GB")
+    second = hass.states.get("sensor.weekend_week_2").attributes["trips"][0]
+    assert (second["link"], second["return_link"]) == ("13:MXP-LON 15:LON-MXP", None)
 
 
 async def test_google_from_some_airports(hass: HomeAssistant, aioclient_mock: Any) -> None:

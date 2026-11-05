@@ -5,7 +5,7 @@ Cheapest return flights for the coming weeks, as Home Assistant sensors. Each se
 Prices come from two sources, both read without an API key:
 
 - **Ryanair**, through the fare finder behind ryanair.com. One request per departure airport and week returns the cheapest return fare to every destination, so this is the source that can search **anywhere**. Ryanair group flights only.
-- **Google Flights**, read from its search page with [fast-flights](https://github.com/AWeirdDev/flights) building the search: every airline, but only for a list of destinations, one one-way search per request. Outbound and return are searched separately and added up: exact for low-cost airlines, an upper bound for airlines that price return trips lower.
+- **Google Flights**, read from its search page with [fast-flights](https://github.com/AWeirdDev/flights) building the search: every airline, but only for a list of destinations, one one-way search per request. Outbound and return are searched separately and added up: exact for low-cost airlines, an upper bound for airlines that price return trips lower. The booking links open Google Flights with the same hours and stops: a return search when one airline flies both ways (it may show a lower return fare), two one-way searches when the trip pairs two airlines.
 
 > Neither source is an official API. They can change or stop answering at any time, and reading Google Flights automatically is against Google's terms of service. The integration keeps the requests few and spread out (see below) and stops at the first sign of a block. Use it for personal use, at your own risk.
 
@@ -15,7 +15,7 @@ One device per search, with these sensors (prices for one adult, return trip):
 
 | Sensor | State | Attributes |
 |---|---|---|
-| Week 1 … Week N | Cheapest trip of that week | `outbound_date`, `return_date`, the search (`origins`, `outbound_hours` and `return_hours` as `[from, to]`), `destinations_found`, `trips`: up to 30 trips, cheapest first, one per destination and departure airport, with city, country, country code, departure airport, price, airline, source, outbound and return flights (times, flight numbers, stops) and a booking link |
+| Week 1 … Week N | Cheapest trip of that week | `outbound_date`, `return_date`, the search (`origins`, `outbound_hours` and `return_hours` as `[from, to]`), `destinations_found`, `trips`: up to 30 trips, cheapest first, one per destination and departure airport, with city, country, country code, departure airport, price, airline, source, outbound and return flights (times, flight numbers, stops) and a booking link (`link`; with two airlines on Google Flights the trip is two tickets, so `link` is the outbound search and `return_link` the return one) |
 | Cheapest trip | Cheapest trip of all the weeks | `outbound_date`, `return_date`, `city`, `trip` |
 | One per destination, with a list | Cheapest trip to it over the weeks | `city`, `outbound_date`, `weeks` (price per week), `trip` |
 | Ryanair search, Google Flights search (diagnostic) | Last successful search | `last_attempt`, `error`, `trips`, `running` |

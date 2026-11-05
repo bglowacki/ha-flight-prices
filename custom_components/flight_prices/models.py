@@ -89,6 +89,8 @@ class Trip:
     link: str
     # ISO code of the destination's country, upper case.
     country_code: str | None = None
+    # Two tickets, as with two airlines on Google: link is the outbound, this the return.
+    return_link: str | None = None
 
     @property
     def origin(self) -> str:
@@ -126,6 +128,7 @@ class Trip:
             "outbound": self.outbound.as_dict(),
             "return": self.inbound.as_dict(),
             "link": self.link,
+            "return_link": self.return_link,
         }
 
     def as_attributes(self) -> dict[str, Any]:
@@ -142,6 +145,7 @@ class Trip:
             "outbound": self.outbound.as_dict(),
             "return": self.inbound.as_dict(),
             "link": self.link,
+            "return_link": self.return_link,
         }
 
     @classmethod
@@ -157,6 +161,7 @@ class Trip:
             inbound=Leg.from_dict(data["return"]),
             link=data["link"],
             country_code=data.get("country_code"),
+            return_link=data.get("return_link"),
         )
 
 

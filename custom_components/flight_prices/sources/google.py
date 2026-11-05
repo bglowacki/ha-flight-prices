@@ -32,6 +32,16 @@ TIMEOUT = 30.0
 
 
 @dataclass(frozen=True)
+class Place:
+    """The destination of a search, as Google describes it in the language of the search."""
+
+    city: str | None
+    country: str | None
+    # ISO code, upper case.
+    country_code: str | None
+
+
+@dataclass(frozen=True)
 class GoogleFlight:
     """A one-way flight and its price for one adult."""
 
@@ -39,6 +49,8 @@ class GoogleFlight:
     price: float
     # As Google writes it, such as "Aeroporto di Lisbona-Portela".
     destination_name: str | None = None
+    # The place searched for (an airport, or a city such as LON), the same for every flight of a page.
+    place: Place | None = None
 
 
 class GoogleSource:
@@ -51,22 +63,7 @@ class GoogleSource:
 
     def search(self, day: date, origin: str, destination: str, hours: Hours, direct_only: bool) -> list[GoogleFlight]:
         """Flights leaving within the hours, cheapest first."""
-        query = create_query(
-            flights=[
-                FlightQuery(
-                    date=day.isoformat(),
-                    from_airport=origin,
-                    to_airport=destination,
-                    earliest_departure_hour=hours.start or None,
-                    latest_departure_hour=hours.end - 1 if hours.end < 24 else None,
-                )
-            ],
-            trip="one-way",
-            passengers=Passengers(adults=1),
-            language=self._language,
-            currency=self._currency,
-            max_stops=0 if direct_only else None,
-        )
+        query = self._query([(day, origin, destination, hours)], direct_only)
         flights = parse_page(self._fetch(query.params()))
         return sorted(
             (
@@ -79,19 +76,28 @@ class GoogleSource:
             key=lambda flight: flight.price,
         )
 
-    def link(self, origin: str, destination: str, outbound: date, inbound: date) -> str:
-        """The return search on Google Flights."""
-        query = create_query(
+    def link(self, legs: list[tuple[date, str, str, Hours]], direct_only: bool) -> str:
+        """The search on Google Flights with the same hours and stops: two legs (day, from, to) are a return."""
+        return self._query(legs, direct_only).url()
+
+    def _query(self, legs: list[tuple[date, str, str, Hours]], direct_only: bool) -> Any:
+        return create_query(
             flights=[
-                FlightQuery(date=outbound.isoformat(), from_airport=origin, to_airport=destination),
-                FlightQuery(date=inbound.isoformat(), from_airport=destination, to_airport=origin),
+                FlightQuery(
+                    date=day.isoformat(),
+                    from_airport=origin,
+                    to_airport=destination,
+                    earliest_departure_hour=hours.start or None,
+                    latest_departure_hour=hours.end - 1 if hours.end < 24 else None,
+                )
+                for day, origin, destination, hours in legs
             ],
-            trip="round-trip",
+            trip="round-trip" if len(legs) == 2 else "one-way",
             passengers=Passengers(adults=1),
             language=self._language,
             currency=self._currency,
+            max_stops=0 if direct_only else None,
         )
-        return query.url()
 
     def close(self) -> None:
         self._client = None
@@ -142,12 +148,13 @@ def parse_page(html: str) -> list[GoogleFlight]:
         payload = json.loads(data_text)
     except ValueError as err:
         raise SourceBlocked("Google Flights changed its flight data") from err
+    place = _place(_get(payload, 1, 0, 1, 0))
     flights = []
     # Index 2 holds what Google calls the best flights, index 3 the others.
     for block in (_get(payload, 2, 0), _get(payload, 3, 0)):
         for item in block or ():
             try:
-                flight = _flight(item)
+                flight = _flight(item, place)
             except (IndexError, KeyError, TypeError, ValueError) as err:
                 _LOGGER.debug("Skipping a Google flight that could not be read: %s", err)
                 continue
@@ -156,7 +163,20 @@ def parse_page(html: str) -> list[GoogleFlight]:
     return flights
 
 
-def _flight(item: list[Any]) -> GoogleFlight | None:
+def _place(data: Any) -> Place | None:
+    """[[code, kind], name, [id, city, ...], [lat, lon], country code, ?, country]."""
+    if not isinstance(data, list):
+        return None
+
+    def text(value: Any) -> str | None:
+        return value if isinstance(value, str) and value else None
+
+    code = text(_get(data, 4))
+    place = Place(city=text(_get(data, 2, 1)), country=text(_get(data, 6)), country_code=code.upper() if code else None)
+    return place if any((place.city, place.country, place.country_code)) else None
+
+
+def _flight(item: list[Any], place: Place | None = None) -> GoogleFlight | None:
     info, prices = item[0], item[1]
     price = _get(prices, 0, 1)
     if not price:
@@ -177,6 +197,7 @@ def _flight(item: list[Any]) -> GoogleFlight | None:
         ),
         price=float(price),
         destination_name=last[5] if isinstance(last[5], str) else None,
+        place=place,
     )
 
 
