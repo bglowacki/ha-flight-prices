@@ -57,6 +57,24 @@ The two lists for Google let you combine them well:
 
 Google needs some destinations: in its own list or in the one above. With both sources, each week keeps the cheapest trip per destination and airport, whichever source found it.
 
+> [!CAUTION]
+> **Google Flights can block your home's internet connection.** It is read without an API, and an address that makes too many automatic searches gets a captcha from Google, for every device at home: on Google Flights and possibly on other Google pages, until Google lifts it. Google publishes no limit, so the integration sets its own, well on the safe side:
+>
+> | Limit | Value | Enforced |
+> |---|---|---|
+> | Google requests a day, at most | **300** | yes: the form refuses a search over it and says how many it would make |
+> | Google interval, at least | **12 hours** | yes: the field goes no lower |
+> | Google interval, recommended | **24 hours**, the default | |
+> | Pause between two requests | 20 to 30 seconds | yes, not an option |
+>
+> The 300 come from what has run for weeks without a single block: up to 224 requests a day, once a day. They are not a promise: other searches from your home count too (a busy household, a VPN exit shared with others). If you ever get a block, the round stops at once and waits for the next interval; make the search smaller rather than more frequent.
+
+A search over the limit is refused, with the number of requests it would make:
+
+![The form refusing a Google setup over 300 requests a day](images/google-limit.png)
+
+The requests of a setting are counted in [How many requests](#how-many-requests).
+
 ## When
 
 ![The second half of the form: weeks, days and hours](images/setup-when.png)
@@ -90,7 +108,7 @@ Everything but the name can be changed from **Settings → Devices & services �
 ![The intervals, at the bottom of Configure](images/options-intervals.png)
 
 - **Ryanair search every**: 1 to 24 hours, 3 by default.
-- **Google Flights search every**: 6 to 168 hours, 24 by default. Going below a day is rarely worth it: prices of flights weeks ahead move slowly, and every round is many requests.
+- **Google Flights search every**: 12 to 168 hours, **24 by default and recommended**. Going below a day is rarely worth it, since prices of flights weeks ahead move slowly, and it doubles the requests: a search of 160 requests a round is fine once a day and refused every 12 hours (320 a day, over the limit of 300). Raise it, rather than cutting destinations, if you want a longer list.
 
 After saving, the search reloads. A source searches again **only if what it searches changed**: airports, destinations, days, hours, direct flights, or more weeks than its last search covered. Otherwise the saved trips stay: fewer weeks, other countries left out, other intervals and a change for Google only (Ryanair keeps its trips) need no new search.
 
@@ -101,16 +119,19 @@ After saving, the search reloads. A source searches again **only if what it sear
 | Ryanair | departure airports × weeks | about a second each |
 | Google Flights | weeks × Google destinations × Google departure airports × 2 | 20 to 30 seconds each |
 
-Google searches the return only when the outbound found something, so real rounds are often shorter. Some examples with 8 weeks:
+Google searches the return only when the outbound found something, so real rounds are often shorter; the limit counts the most a round can make. **Google requests a day** are the requests of a round × 24 / the interval in hours, and must stay within **300**. Some examples with 8 weeks:
 
-| Google setup | Requests | Round |
-|---|---|---|
-| 3 destinations, 1 airport | up to 48 | about 20 minutes |
-| 5 destinations, 1 airport | up to 80 | about 35 minutes |
-| 14 destinations, 1 airport | up to 224 | about an hour and a half |
-| 14 destinations, 2 airports | up to 448 | about three hours |
+| Google setup | Requests a round | Round | Once a day (24 h) | Twice a day (12 h) |
+|---|---|---|---|---|
+| 3 destinations, 1 airport | up to 48 | about 20 minutes | ✅ 48 | ✅ 96 |
+| 5 destinations, 1 airport | up to 80 | about 35 minutes | ✅ 80 | ✅ 160 |
+| 14 destinations, 1 airport | up to 224 | about an hour and a half | ✅ 224 | ❌ 448 |
+| 10 destinations, 2 airports | up to 320 | about two hours and a quarter | ❌ 320 (✅ every 36 h: 214) | ❌ 640 |
+| 14 destinations, 2 airports | up to 448 | about three hours | ❌ 448 (✅ every 48 h: 224) | ❌ 896 |
 
-All the requests come from your home's internet connection. A Google round stops at the first sign of a block (cookie consent, captcha, too many requests) and is tried again at the next interval. **Keep the Google list short**, a handful of places that Ryanair does not cover, rather than every city you might like.
+With 12 weeks instead of 8 every figure grows by half. When the form refuses a search, it says how many requests it would make: take out destinations, a Google departure airport or some weeks, or lengthen the interval.
+
+All the requests come from your home's internet connection (see the [caution above](#sources)). A Google round stops at the first sign of a block (cookie consent, captcha, too many requests) or after 5 errors in a row, and is tried again at the next interval. **Keep the Google list short**, a handful of places that Ryanair does not cover, rather than every city you might like. Ryanair is light (one request per airport and week, a second apart) and has no limit of its own beyond its interval of 1 to 24 hours.
 
 ## Ready-made setups
 
@@ -146,7 +167,7 @@ The filter by departure airport at the top is remembered on each device. A tap o
 
 **A week shows "No flights found".** Nothing leaves in the windows you chose, or nothing goes back in time: widen the hours, allow flights with stops for Google, or check the airports. Christmas and other holidays often have few flights.
 
-**Google Flights trips do not appear.** Look at the *Google Flights search* sensor: `running: true` means a round is still going; an `error` says why the last one stopped. A block waits for the next interval; if it happens every day, make the Google list shorter.
+**Google Flights trips do not appear.** Look at the *Google Flights search* sensor: `running: true` means a round is still going; an `error` says why the last one stopped. A block (captcha, too many requests) waits for the next interval. If it happens again, make the search smaller and the interval longer, and check that nothing else at home searches Google automatically: a block is for the whole connection.
 
 **A destination appears in some weeks only.** With "Each destination only once on the page" the card shows it in one week; tap the week's title to see the whole list.
 

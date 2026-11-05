@@ -51,6 +51,8 @@ from .const import (
     DEFAULT_RYANAIR_HOURS,
     DEFAULT_WEEKS,
     DOMAIN,
+    GOOGLE_MAX_REQUESTS_PER_DAY,
+    GOOGLE_MIN_HOURS,
     GUIDE_URL,
     MAX_WEEKS,
     SOURCE_GOOGLE,
@@ -103,7 +105,7 @@ USER_SCHEMA = vol.Schema({vol.Required(CONF_NAME): TextSelector()}).extend(SEARC
 OPTIONS_SCHEMA = SEARCH_SCHEMA.extend(
     {
         vol.Required(CONF_RYANAIR_INTERVAL, default=DEFAULT_RYANAIR_HOURS): _number(1, 24, "h"),
-        vol.Required(CONF_GOOGLE_INTERVAL, default=DEFAULT_GOOGLE_HOURS): _number(6, 168, "h"),
+        vol.Required(CONF_GOOGLE_INTERVAL, default=DEFAULT_GOOGLE_HOURS): _number(GOOGLE_MIN_HOURS, 168, "h"),
     }
 )
 
@@ -113,6 +115,25 @@ def _codes(values: Any) -> list[str]:
     if isinstance(values, str):
         values = re.split(r"[\s,;]+", values)
     return list(dict.fromkeys(code.strip().upper() for code in values or () if code.strip()))
+
+
+def google_requests_per_day(options: Mapping[str, Any]) -> int:
+    """The most requests Google Flights makes in a day: weeks x destinations x airports x 2, per round."""
+    if SOURCE_GOOGLE not in options.get(CONF_SOURCES, ()):
+        return 0
+    destinations = options.get(CONF_GOOGLE_DESTINATIONS) or options.get(CONF_DESTINATIONS) or ()
+    origins = options.get(CONF_GOOGLE_ORIGINS) or options.get(CONF_ORIGINS) or ()
+    per_round = int(options.get(CONF_WEEKS, DEFAULT_WEEKS)) * len(destinations) * len(origins) * 2
+    hours = max(int(options.get(CONF_GOOGLE_INTERVAL, DEFAULT_GOOGLE_HOURS)), GOOGLE_MIN_HOURS)
+    return -(-per_round * 24 // hours)
+
+
+def placeholders(options: Mapping[str, Any]) -> dict[str, str]:
+    return {
+        "guide_url": GUIDE_URL,
+        "count": str(google_requests_per_day(options)),
+        "limit": str(GOOGLE_MAX_REQUESTS_PER_DAY),
+    }
 
 
 def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
@@ -164,6 +185,10 @@ def validate(user_input: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, s
     for key in (CONF_RYANAIR_INTERVAL, CONF_GOOGLE_INTERVAL):
         if key in user_input:
             options[key] = int(user_input[key])
+    # The interval cannot go under GOOGLE_MIN_HOURS: its field does not accept it.
+    if google_requests_per_day(options) > GOOGLE_MAX_REQUESTS_PER_DAY:
+        # Many requests from one address get it a captcha from Google, for the whole home.
+        errors.setdefault(CONF_GOOGLE_DESTINATIONS, "google_too_many")
     return options, errors
 
 
@@ -188,6 +213,7 @@ class FlightPricesConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
+        options: dict[str, Any] = {}
         if user_input is not None:
             options, errors = validate(user_input)
             if not errors:
@@ -199,7 +225,7 @@ class FlightPricesConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, _suggested(user_input or {})),
             errors=errors,
-            description_placeholders={"guide_url": GUIDE_URL},
+            description_placeholders=placeholders(options),
         )
 
 
@@ -208,6 +234,7 @@ class FlightPricesOptionsFlow(OptionsFlowWithReload):
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
+        options: dict[str, Any] = {}
         if user_input is not None:
             options, errors = validate(user_input)
             if not errors:
@@ -218,5 +245,5 @@ class FlightPricesOptionsFlow(OptionsFlowWithReload):
                 OPTIONS_SCHEMA, _suggested(user_input or self.config_entry.options)
             ),
             errors=errors,
-            description_placeholders={"guide_url": GUIDE_URL},
+            description_placeholders=placeholders(options),
         )

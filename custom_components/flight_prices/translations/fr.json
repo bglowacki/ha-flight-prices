@@ -26,9 +26,9 @@
           "origins": "Codes IATA, par exemple ORY et BVA. Chaque voyage revient à l'aéroport d'où il est parti.",
           "destinations": "Codes IATA d'aéroports ou de villes (LON vaut pour tous les aéroports de Londres). Laissez vide pour chercher partout : uniquement avec Ryanair.",
           "exclude_countries": "Codes ISO à deux lettres, comme FR pour exclure les vols à l'intérieur de la France.",
-          "sources": "Ryanair trouve le tarif le plus bas vers chaque destination en quelques requêtes. Google Flights couvre toutes les compagnies, mais seulement pour une liste de destinations et avec de nombreuses requêtes réparties sur environ une heure.",
+          "sources": "Ryanair trouve le tarif le plus bas vers chaque destination en quelques requêtes. Google Flights couvre toutes les compagnies, mais seulement pour une liste de destinations et avec de nombreuses requêtes réparties sur environ une heure. Google Flights est lu sans API : avec trop de recherches, Google affiche un captcha à toute la connexion de la maison, il est donc limité à {limit} requêtes par jour.",
           "google_origins": "Seuls ces aéroports de départ sont cherchés sur Google Flights, par exemple celui que Ryanair ne couvre pas. Vide : tous.",
-          "google_destinations": "Cherchées uniquement sur Google Flights, pour que Ryanair continue à chercher partout. Vide : les destinations ci-dessus.",
+          "google_destinations": "Cherchées uniquement sur Google Flights, pour que Ryanair continue à chercher partout. Vide : les destinations ci-dessus. Gardez la liste courte : chaque destination coûte jusqu'à 2 requêtes par semaine et aéroport, et Google Flights est limité à {limit} requêtes par jour.",
           "weeks": "Combien de semaines à l'avance, à partir de la prochaine.",
           "outbound_to": "24 correspond à minuit.",
           "return_to": "24 correspond à minuit.",
@@ -42,7 +42,8 @@
       "no_source": "Choisissez au moins une source.",
       "google_needs_destinations": "Google Flights a besoin de destinations : saisissez les siennes ou celles ci-dessus.",
       "invalid_hours": "La fin doit venir après le début.",
-      "invalid_country": "Utilisez des codes de pays ISO à deux lettres, comme FR."
+      "invalid_country": "Utilisez des codes de pays ISO à deux lettres, comme FR.",
+      "google_too_many": "Google Flights ferait jusqu'à {count} requêtes par jour, plus que les {limit} qui protègent la connexion de la maison d'un blocage : utilisez moins de destinations, d'aéroports de départ ou de semaines pour Google, ou un intervalle plus long."
     },
     "abort": {
       "already_configured": "Cette recherche existe déjà."
@@ -75,15 +76,15 @@
           "origins": "Codes IATA, par exemple ORY et BVA. Chaque voyage revient à l'aéroport d'où il est parti.",
           "destinations": "Codes IATA d'aéroports ou de villes (LON vaut pour tous les aéroports de Londres). Laissez vide pour chercher partout : uniquement avec Ryanair.",
           "exclude_countries": "Codes ISO à deux lettres, comme FR pour exclure les vols à l'intérieur de la France.",
-          "sources": "Ryanair trouve le tarif le plus bas vers chaque destination en quelques requêtes. Google Flights couvre toutes les compagnies, mais seulement pour une liste de destinations et avec de nombreuses requêtes réparties sur environ une heure.",
+          "sources": "Ryanair trouve le tarif le plus bas vers chaque destination en quelques requêtes. Google Flights couvre toutes les compagnies, mais seulement pour une liste de destinations et avec de nombreuses requêtes réparties sur environ une heure. Google Flights est lu sans API : avec trop de recherches, Google affiche un captcha à toute la connexion de la maison, il est donc limité à {limit} requêtes par jour.",
           "google_origins": "Seuls ces aéroports de départ sont cherchés sur Google Flights, par exemple celui que Ryanair ne couvre pas. Vide : tous.",
-          "google_destinations": "Cherchées uniquement sur Google Flights, pour que Ryanair continue à chercher partout. Vide : les destinations ci-dessus.",
+          "google_destinations": "Cherchées uniquement sur Google Flights, pour que Ryanair continue à chercher partout. Vide : les destinations ci-dessus. Gardez la liste courte : chaque destination coûte jusqu'à 2 requêtes par semaine et aéroport, et Google Flights est limité à {limit} requêtes par jour.",
           "weeks": "Combien de semaines à l'avance, à partir de la prochaine.",
           "outbound_to": "24 correspond à minuit.",
           "return_to": "24 correspond à minuit.",
           "direct_only": "Pour Google Flights uniquement : Ryanair vole toujours en direct.",
           "ryanair_interval": "Heures entre deux recherches.",
-          "google_interval": "Heures entre deux recherches. Une recherche lit chaque semaine, destination et aéroport, aller et retour."
+          "google_interval": "Heures entre deux recherches, au moins 12 ; 24 recommandées. Une recherche lit chaque semaine, destination et aéroport, aller et retour. Chercher plus souvent sert peu, car les tarifs à quelques semaines bougent lentement, et risque un blocage par Google pour toute la connexion de la maison."
         }
       }
     },
@@ -93,7 +94,8 @@
       "no_source": "Choisissez au moins une source.",
       "google_needs_destinations": "Google Flights a besoin de destinations : saisissez les siennes ou celles ci-dessus.",
       "invalid_hours": "La fin doit venir après le début.",
-      "invalid_country": "Utilisez des codes de pays ISO à deux lettres, comme FR."
+      "invalid_country": "Utilisez des codes de pays ISO à deux lettres, comme FR.",
+      "google_too_many": "Google Flights ferait jusqu'à {count} requêtes par jour, plus que les {limit} qui protègent la connexion de la maison d'un blocage : utilisez moins de destinations, d'aéroports de départ ou de semaines pour Google, ou un intervalle plus long."
     }
   },
   "selector": {

@@ -46,6 +46,11 @@ DEFAULT_RETURN_TO: Final = 24
 DEFAULT_DIRECT_ONLY: Final = True
 DEFAULT_RYANAIR_HOURS: Final = 3
 DEFAULT_GOOGLE_HOURS: Final = 24
+# Google Flights has no published limit: too many automatic searches get the home's IP address a
+# captcha. These limits are ours, kept well above what has run for weeks without a block (224
+# requests a day, 20 to 30 seconds apart) and well below anything aggressive.
+GOOGLE_MIN_HOURS: Final = 12
+GOOGLE_MAX_REQUESTS_PER_DAY: Final = 300
 
 # How often the coordinator checks whether a source is due.
 TICK: Final = timedelta(minutes=15)

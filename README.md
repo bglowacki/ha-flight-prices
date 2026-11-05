@@ -60,6 +60,9 @@ It reads the sensors of the search, so it follows the options: change the weeks,
 
 The Google search runs in the background. Its round stops at the first block (consent page, captcha, HTTP 429) or after 5 errors in a row, and is tried again at the next interval. A return is not searched when the outbound found nothing. Results are saved, so a restart of Home Assistant or a change of options shows them at once without searching again, unless the search itself changed.
 
+> [!CAUTION]
+> Too many automatic searches get your home's internet connection a captcha from Google, for every device at home. The integration refuses a Google setup over **300 requests a day** and an interval under **12 hours**; once a day (the default) is recommended. See the [configuration guide](https://github.com/flaviorighi/ha-flight-prices/blob/main/docs/configuration.md#how-many-requests) for the numbers.
+
 ## Installation
 
 With HACS: add this repository as a custom repository (category Integration), install **Flight Prices** and restart Home Assistant. By hand: copy `custom_components/flight_prices` into your `config/custom_components` and restart.
@@ -78,7 +81,7 @@ Then add the integration in **Settings → Devices & services**. The options can
 | Outbound day and departure hours | Any weekday; hours from 0 to 24, 24 being midnight | Friday, 19 to 24 |
 | Return day and departure hours | Any weekday; a return day before the outbound day means the week after (Saturday to Monday) | Sunday, 14 to 24 |
 | Direct flights only | Google Flights only: Ryanair always flies direct | yes |
-| Ryanair / Google Flights search every | Hours between two searches | 3 / 24 |
+| Ryanair / Google Flights search every | Hours between two searches: Ryanair 1 to 24, Google Flights 12 to 168 | 3 / 24 |
 
 ## Development
 
