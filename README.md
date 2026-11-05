@@ -22,6 +22,26 @@ One device per search, with these sensors (prices for one adult, return trip):
 
 Each week keeps one trip per destination and departure airport, the cheapest across sources, so a dashboard can filter by airport. Every trip comes back to the airport it left from. The lists in the attributes are not recorded in the history.
 
+## Dashboard card
+
+The integration ships a card, **Flight Prices**, already in the card picker: nothing to install or add as a resource. It shows one search:
+
+- a summary with the cheapest trip, how many destinations were found and when each source last searched (red when a source keeps failing);
+- a filter by departure airport, remembered on each device;
+- one block per week with its cheapest destinations, each destination only once on the page: in rounds from the cheapest, every week gets its first, then its second and so on, so each destination sits in its cheapest week when there is room and no week is left empty. A trip that is cheaper in another week says so;
+- the whole list of a week on a tap on its title;
+- a tap on a trip opens the booking page; trips that are two tickets have an outbound and a return button.
+
+```yaml
+type: custom:flight-prices-card
+device_id: <the search>   # optional with only one search
+title: Weekends           # optional, the search's name by default
+per_week: 3               # destinations per week before "show the others"
+unique: true              # false: every week shows its own cheapest destinations
+```
+
+It reads the sensors of the search, so it follows the options: change the weeks, airports or hours and the card follows. In a sections view it takes the whole width and lays the weeks out in columns.
+
 ## Requests
 
 | Source | Requests per search | Default interval |
@@ -65,7 +85,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 - An event when a price drops below the lowest seen so far, for a destination or a week
 - More than one passenger
-- A dashboard card, shipped with the integration: the weeks and their trips, a filter by departure airport and the booking links, with nothing else to install or set up
 
 ## Credits
 

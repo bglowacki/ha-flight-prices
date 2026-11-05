@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 import json
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from freezegun.api import FrozenDateTimeFactory
 import pytest
@@ -326,3 +326,16 @@ async def test_ryanair_anywhere_google_list(hass: HomeAssistant, aioclient_mock:
     # Ryanair still everywhere, Google adds Hamburg.
     assert [trip["destination"] for trip in trips] == ["HAM", "WWA", "PMO", "EDI"]
     assert hass.states.get("sensor.weekend_ham") is not None
+
+
+async def test_card_is_served(hass: HomeAssistant, aioclient_mock: Any, frontend: MagicMock) -> None:
+    aioclient_mock.get(RYANAIR_URL, json=ryanair_payload())
+    await _setup(hass)
+    paths = hass.http.async_register_static_paths.call_args.args[0]
+    assert [(path.url_path, path.path.endswith("frontend/flight-prices-card.js")) for path in paths] == [
+        ("/flight_prices/flight-prices-card.js", True)
+    ]
+    # Loaded on every dashboard, with the file's hash in the address for the browsers' cache.
+    url = frontend.call_args.args[1]
+    assert url.startswith("/flight_prices/flight-prices-card.js?v=")
+    assert len(url.split("v=")[1]) == 8

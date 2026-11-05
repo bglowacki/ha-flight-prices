@@ -6,7 +6,7 @@ from collections.abc import Generator
 import json
 from pathlib import Path
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -28,6 +28,7 @@ from custom_components.flight_prices.const import (
     CONF_WEEKS,
     DOMAIN,
 )
+from homeassistant.core import HomeAssistant
 
 FIXTURES = Path(__file__).parent / "fixtures"
 # A Wednesday: the first week is Friday 6 to Sunday 8 November 2026, as in the fixture.
@@ -54,6 +55,15 @@ OPTIONS: dict[str, Any] = {
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
     """Load the integration from custom_components."""
+
+
+@pytest.fixture(autouse=True)
+def frontend(hass: HomeAssistant) -> Generator[MagicMock]:
+    """frontend and http as Home Assistant has them; the frontend package is not installed for tests."""
+    hass.config.components.update({"frontend", "http"})
+    hass.http = MagicMock(async_register_static_paths=AsyncMock())
+    with patch("custom_components.flight_prices.add_extra_js_url") as add:
+        yield add
 
 
 @pytest.fixture(autouse=True)
