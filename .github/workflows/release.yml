@@ -2,14 +2,18 @@ name: Release
 
 # HACS installs the zip attached to each release (zip_release in hacs.json), so GitHub counts
 # every download. The zip holds the files of custom_components/flight_prices at its root.
+#
+# Releases are immutable: once published, neither their tag nor their files can change. So the
+# zip is attached while the release is a draft: pushing a tag v* creates the draft with the zip,
+# and the release is published by hand after writing its notes.
 
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: Release to attach the zip to
+        description: Tag whose draft release gets the zip
         required: true
 
 permissions:
@@ -19,7 +23,7 @@ jobs:
   zip:
     runs-on: ubuntu-latest
     env:
-      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -28,12 +32,18 @@ jobs:
         run: |
           version=$(jq -r .version custom_components/flight_prices/manifest.json)
           if [ "v$version" != "$TAG" ]; then
-            echo "manifest.json says $version, the release is $TAG"
+            echo "manifest.json says $version, the tag is $TAG"
             exit 1
           fi
       - name: Zip the integration
         run: cd custom_components/flight_prices && zip -r -X ../../flight_prices.zip . -x '__pycache__/*'
-      - name: Attach it to the release
+      - name: Attach it to a draft release
+        # On a published release the upload fails: its files cannot change any more.
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "$TAG" flight_prices.zip --clobber
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" flight_prices.zip --clobber
+          else
+            gh release create "$TAG" flight_prices.zip --draft --verify-tag --title "$TAG" --notes "To be written before publishing."
+          fi
