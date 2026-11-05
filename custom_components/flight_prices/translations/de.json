@@ -1,0 +1,141 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Neue Flugsuche",
+        "description": "Hin- und Rückflüge für jede Woche: Hinflug an einem Tag, Rückflug an einem anderen, in den Zeitfenstern deiner Wahl. Die Preise gelten für einen Erwachsenen.",
+        "data": {
+          "name": "Name",
+          "origins": "Abflughäfen",
+          "destinations": "Ziele",
+          "exclude_countries": "Länder ausschließen",
+          "sources": "Quellen",
+          "google_origins": "Abflughäfen für Google Flights",
+          "google_destinations": "Ziele für Google Flights",
+          "weeks": "Wochen",
+          "outbound_day": "Tag des Hinflugs",
+          "outbound_from": "Abflug des Hinflugs ab",
+          "outbound_to": "Abflug des Hinflugs bis",
+          "return_day": "Tag des Rückflugs",
+          "return_from": "Abflug des Rückflugs ab",
+          "return_to": "Abflug des Rückflugs bis",
+          "direct_only": "Nur Direktflüge"
+        },
+        "data_description": {
+          "name": "Zum Beispiel Wochenende ab Berlin.",
+          "origins": "IATA-Codes, zum Beispiel BER und HAM. Jede Reise kehrt zu dem Flughafen zurück, von dem sie gestartet ist.",
+          "destinations": "IATA-Codes von Flughäfen oder Städten (LON steht für alle Londoner Flughäfen). Leer lassen, um überall zu suchen: nur mit Ryanair.",
+          "exclude_countries": "Zweistellige ISO-Codes, etwa DE, um Flüge innerhalb Deutschlands auszuschließen.",
+          "sources": "Ryanair findet mit wenigen Anfragen den günstigsten Tarif zu jedem Ziel. Google Flights deckt alle Fluggesellschaften ab, aber nur für eine Liste von Zielen und mit vielen Anfragen, verteilt auf etwa eine Stunde.",
+          "google_origins": "Nur diese Abflughäfen werden auf Google Flights gesucht, zum Beispiel der, den Ryanair nicht abdeckt. Leer: alle.",
+          "google_destinations": "Nur auf Google Flights gesucht, damit Ryanair weiter überall suchen kann. Leer: die Ziele oben.",
+          "weeks": "Wie viele Wochen im Voraus, ab der kommenden.",
+          "outbound_to": "24 ist Mitternacht.",
+          "return_to": "24 ist Mitternacht.",
+          "direct_only": "Nur für Google Flights: Ryanair fliegt immer direkt."
+        }
+      }
+    },
+    "error": {
+      "no_origin": "Gib mindestens einen Abflughafen ein.",
+      "invalid_code": "Verwende dreistellige IATA-Codes, etwa BER.",
+      "no_source": "Wähle mindestens eine Quelle.",
+      "google_needs_destinations": "Google Flights braucht Ziele: Trage eigene ein oder die Ziele oben.",
+      "invalid_hours": "Das Ende muss nach dem Beginn liegen.",
+      "invalid_country": "Verwende zweistellige ISO-Ländercodes, etwa DE."
+    },
+    "abort": {
+      "already_configured": "Diese Suche gibt es schon."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Suche ändern",
+        "data": {
+          "origins": "Abflughäfen",
+          "destinations": "Ziele",
+          "exclude_countries": "Länder ausschließen",
+          "sources": "Quellen",
+          "google_origins": "Abflughäfen für Google Flights",
+          "google_destinations": "Ziele für Google Flights",
+          "weeks": "Wochen",
+          "outbound_day": "Tag des Hinflugs",
+          "outbound_from": "Abflug des Hinflugs ab",
+          "outbound_to": "Abflug des Hinflugs bis",
+          "return_day": "Tag des Rückflugs",
+          "return_from": "Abflug des Rückflugs ab",
+          "return_to": "Abflug des Rückflugs bis",
+          "direct_only": "Nur Direktflüge",
+          "ryanair_interval": "Ryanair-Suche alle",
+          "google_interval": "Google-Flights-Suche alle"
+        },
+        "data_description": {
+          "origins": "IATA-Codes, zum Beispiel BER und HAM. Jede Reise kehrt zu dem Flughafen zurück, von dem sie gestartet ist.",
+          "destinations": "IATA-Codes von Flughäfen oder Städten (LON steht für alle Londoner Flughäfen). Leer lassen, um überall zu suchen: nur mit Ryanair.",
+          "exclude_countries": "Zweistellige ISO-Codes, etwa DE, um Flüge innerhalb Deutschlands auszuschließen.",
+          "sources": "Ryanair findet mit wenigen Anfragen den günstigsten Tarif zu jedem Ziel. Google Flights deckt alle Fluggesellschaften ab, aber nur für eine Liste von Zielen und mit vielen Anfragen, verteilt auf etwa eine Stunde.",
+          "google_origins": "Nur diese Abflughäfen werden auf Google Flights gesucht, zum Beispiel der, den Ryanair nicht abdeckt. Leer: alle.",
+          "google_destinations": "Nur auf Google Flights gesucht, damit Ryanair weiter überall suchen kann. Leer: die Ziele oben.",
+          "weeks": "Wie viele Wochen im Voraus, ab der kommenden.",
+          "outbound_to": "24 ist Mitternacht.",
+          "return_to": "24 ist Mitternacht.",
+          "direct_only": "Nur für Google Flights: Ryanair fliegt immer direkt.",
+          "ryanair_interval": "Stunden zwischen zwei Suchen.",
+          "google_interval": "Stunden zwischen zwei Suchen. Eine Suche liest jede Woche, jedes Ziel und jeden Flughafen, Hin- und Rückflug."
+        }
+      }
+    },
+    "error": {
+      "no_origin": "Gib mindestens einen Abflughafen ein.",
+      "invalid_code": "Verwende dreistellige IATA-Codes, etwa BER.",
+      "no_source": "Wähle mindestens eine Quelle.",
+      "google_needs_destinations": "Google Flights braucht Ziele: Trage eigene ein oder die Ziele oben.",
+      "invalid_hours": "Das Ende muss nach dem Beginn liegen.",
+      "invalid_country": "Verwende zweistellige ISO-Ländercodes, etwa DE."
+    }
+  },
+  "selector": {
+    "sources": {
+      "options": {
+        "ryanair": "Ryanair",
+        "google": "Google Flights"
+      }
+    },
+    "weekday": {
+      "options": {
+        "0": "Montag",
+        "1": "Dienstag",
+        "2": "Mittwoch",
+        "3": "Donnerstag",
+        "4": "Freitag",
+        "5": "Samstag",
+        "6": "Sonntag"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "week": {
+        "name": "Woche {number}"
+      },
+      "cheapest": {
+        "name": "Günstigste Reise"
+      },
+      "destination": {
+        "name": "{destination}"
+      },
+      "ryanair_search": {
+        "name": "Ryanair-Suche"
+      },
+      "google_search": {
+        "name": "Google-Flights-Suche"
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Keine Quelle hat geantwortet: {error}"
+    }
+  }
+}
