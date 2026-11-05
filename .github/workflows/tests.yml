@@ -20,3 +20,13 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: pytest --timeout 60
+
+  card:
+    # The dashboard card: Node's own test runner, no packages to install.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - run: node --test "tests/card/*.test.mjs"

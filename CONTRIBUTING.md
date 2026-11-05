@@ -17,16 +17,19 @@ Do not open a public issue: see [SECURITY.md](SECURITY.md).
 
 ## Development
 
-You need Python 3.14, the version the tests run on.
+You need Python 3.14, the version the tests run on, and Node.js 24 for the card's tests.
 
 ```
 python -m venv .venv
 .venv/bin/pip install -r requirements_test.txt      # .venv\Scripts\pip on Windows
 pytest
 ruff check . && ruff format --check .
+node --test "tests/card/*.test.mjs"
 ```
 
-The tests never reach Ryanair or Google: they read saved answers from `tests/fixtures`, and the Home Assistant test plugin blocks the network. When you save a new answer, keep only what the test needs and remove cookies or anything else tied to your browser. The same three commands run on every push and pull request.
+The dashboard card is one JavaScript file with no dependencies and no build step (`custom_components/flight_prices/frontend/flight-prices-card.js`); keep it that way, so what Home Assistant loads is what is in the repository. Its tests replace the browser with the few globals the card uses and read what it renders.
+
+The tests never reach Ryanair or Google: they read saved answers from `tests/fixtures`, and the Home Assistant test plugin blocks the network. When you save a new answer, keep only what the test needs and remove cookies or anything else tied to your browser. The same commands run on every push and pull request.
 
 ## What a pull request needs
 

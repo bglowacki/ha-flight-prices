@@ -1,6 +1,13 @@
 # Flight Prices for Home Assistant
 
+[![Downloads](https://img.shields.io/github/downloads/flaviorighi/ha-flight-prices/total?label=downloads)](https://github.com/flaviorighi/ha-flight-prices/releases)
+[![Installations](https://img.shields.io/badge/dynamic/json?label=installations&query=%24.flight_prices.total&url=https%3A%2F%2Fanalytics.home-assistant.io%2Fcustom_integrations.json)](https://analytics.home-assistant.io/)
+
 Cheapest return flights for the coming weeks, as Home Assistant sensors. Each search has its own departure airports, destinations (or anywhere), outbound and return weekday and departure hours: for example out on Friday evening after 19:00 from Milan Malpensa or Bergamo and back on Sunday afternoon, or out on Thursday morning and back on Monday. Add as many searches as you like; all of it can be changed later from **Configure**.
+
+![The dashboard card of the integration, with made-up data](https://raw.githubusercontent.com/flaviorighi/ha-flight-prices/main/docs/images/card.png)
+
+*The card that comes with the integration, with made-up data.*
 
 Prices come from two sources, both read without an API key:
 
@@ -19,6 +26,8 @@ One device per search, with these sensors (prices for one adult, return trip):
 | Cheapest trip | Cheapest trip of all the weeks | `outbound_date`, `return_date`, `city`, `trip` |
 | One per destination, with a list | Cheapest trip to it over the weeks | `city`, `outbound_date`, `weeks` (price per week), `trip` |
 | Ryanair search, Google Flights search (diagnostic) | Last successful search | `last_attempt`, `error`, `trips`, `running` |
+
+![The sensors of one search](https://raw.githubusercontent.com/flaviorighi/ha-flight-prices/main/docs/images/device.png)
 
 Each week keeps one trip per destination and departure airport, the cheapest across sources, so a dashboard can filter by airport. Every trip comes back to the airport it left from. The lists in the attributes are not recorded in the history.
 
@@ -77,6 +86,7 @@ Then add the integration in **Settings → Devices & services**. The options can
 pip install -r requirements_test.txt
 pytest
 ruff check . && ruff format --check .
+node --test "tests/card/*.test.mjs"   # the dashboard card, Node.js 24
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.

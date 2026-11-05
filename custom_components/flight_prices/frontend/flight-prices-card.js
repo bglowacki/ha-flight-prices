@@ -751,16 +751,52 @@ class FlightPricesCardEditor extends HTMLElement {
   }
 }
 
-// The file can be loaded twice (by the integration and by a resource added by hand).
-if (!customElements.get(CARD)) {
-  customElements.define(CARD, FlightPricesCard);
-  customElements.define(`${CARD}-editor`, FlightPricesCardEditor);
+// Home Assistant imports this file while its own code is still loading, and can then swap
+// window.customElements for its own registry, which would not know a card defined before. So
+// the card is defined on whatever registry is current, again once Home Assistant is up. The
+// file can also be loaded twice (by the integration and by a resource added by hand).
+function register() {
+  const registry = window.customElements;
+  if (!registry.get(CARD)) registry.define(CARD, FlightPricesCard);
+  if (!registry.get(`${CARD}-editor`)) registry.define(`${CARD}-editor`, FlightPricesCardEditor);
   window.customCards = window.customCards || [];
-  window.customCards.push({
-    type: CARD,
-    name: STRINGS.en.name,
-    description: STRINGS.en.description,
-    preview: true,
-    documentationURL: "https://github.com/flaviorighi/ha-flight-prices",
-  });
+  if (!window.customCards.some((card) => card.type === CARD)) {
+    window.customCards.push({
+      type: CARD,
+      name: STRINGS.en.name,
+      description: STRINGS.en.description,
+      preview: true,
+      documentationURL: "https://github.com/flaviorighi/ha-flight-prices",
+    });
+  }
 }
+
+register();
+// Every 0.2 s for a minute: a new registry gets the card at once.
+(async () => {
+  let registry = window.customElements;
+  for (let i = 0; i < 300; i++) {
+    // unref: in Node (the tests) the wait does not keep the process alive.
+    await new Promise((resolve) => setTimeout(resolve, 200)?.unref?.());
+    if (window.customElements !== registry || !registry.get(CARD)) {
+      registry = window.customElements;
+      register();
+    }
+  }
+})();
+
+// For the tests (tests/card): Home Assistant loads this file as a module, so exports are harmless.
+export {
+  FlightPricesCard,
+  FlightPricesCardEditor,
+  STRINGS,
+  assign,
+  dateRange,
+  escape,
+  isWeekend,
+  language,
+  readSearch,
+  register,
+  searchOptions,
+  t,
+};
